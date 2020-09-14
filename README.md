@@ -38,7 +38,7 @@ The following examples show how the supported components and directives are used
 
 #### DOM Element
 ```ts
-['div', { class: 'btn' }, { click: Expression }, [
+['div', { /* attributes */ class: Expression }, { /*on*/ click: Expression }, [
   // components
 ]]
 ```
@@ -73,7 +73,7 @@ The following examples show how the supported components and directives are used
 
 #### Slot
 ```ts
-[':slot', { name: Expression, scope: { scopeVar: 10 } }, {}, [
+[':slot', { name: string, scope?: { scopeVar: Expression } }, {}, [
   // components that can see scope
 ]]
 ```
