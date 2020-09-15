@@ -3,7 +3,7 @@ module.exports = {
   roots: [
     '<rootDir>/test',
   ],
-  testRegex: '(.*)\\.ts$',
+  testRegex: '(.*)\\.spec\\.ts$',
   moduleFileExtensions: [
     'js',
     'ts',

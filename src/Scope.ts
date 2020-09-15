@@ -1,7 +1,7 @@
 import { Expression, isArray } from 'expangine-runtime';
 import { LiveContext, LiveRuntime } from 'expangine-runtime-live';
 import { Watcher, Node as LinkedNode, observe, unobserve, watch } from 'scrute';
-import { copyProperties, createChildScope, createScope } from './functions';
+import { copyProperties, createChildScope, createScope } from './fns';
 import { Off } from './Node';
 
 
@@ -51,7 +51,7 @@ export class Scope<A extends LiveContext = any>
 
   public get<V extends keyof A>(attr: V, defaultValue?: A[V]): A[V] 
   {
-    return attr in this.observed ? this.observed[attr] : defaultValue as A[V];
+    return attr in this.observed ? this.observed[attr] : defaultValue;
   }
 
   public set<V extends keyof A>(attr: V, value: A[V]): void 
@@ -86,7 +86,7 @@ export class Scope<A extends LiveContext = any>
   {
     const cmd = LiveRuntime.eval(expr);
 
-    return (extra) => cmd(extra ? { ...this.data, ...extra} : this.data);
+    return (extra) => cmd(extra ? createChildScope(this.observed, extra) : this.observed);
   }
 
   public enable(): void 

@@ -35,7 +35,7 @@ export interface NodeInstance
 
 export function isStyleElement(x: any): x is HTMLElement 
 {
-    return !!x && isObject(x.style);
+  return !!x && isObject(x.style);
 }
 
 export function getSlots(slots?: NodeTemplateSlots, name: string = DEFAULT_SLOT): NodeTemplateChild[]
@@ -67,9 +67,13 @@ export function changeElement(instance: NodeInstance, element: Node[])
       continue;
     }
 
-    if (o && o.parentElement) 
+    if (o) 
     {
-      o.parentElement.replaceChild(n, o);
+      if (o.parentElement)
+      {
+        o.parentElement.replaceChild(n, o);
+      }
+      
       instance.element[i] = n;
     } 
     else if (!o && i > 0) 

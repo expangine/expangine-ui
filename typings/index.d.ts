@@ -1,5 +1,5 @@
 export * from './constants';
-export * from './functions';
+export * from './fns';
 export * from './compilers';
 export * from './compile';
 export * from './Node';

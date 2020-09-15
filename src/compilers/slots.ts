@@ -5,43 +5,43 @@ import { Scope } from '../Scope';
 
 export const CompilerSlot: NodeCompiler = (template, component, scope, parent) => 
 {
-    const [, attrs, , childSlots] = template;
-    const element = [document.createComment('slot')];
-    const instance: NodeInstance = { parent, component, scope, element };
+  const [, attrs, , childSlots] = template;
+  const element = [document.createComment('slot')];
+  const instance: NodeInstance = { parent, component, scope, element };
 
-    if (attrs)
+  if (attrs)
+  {
+    const slotName = attrs.name || DEFAULT_SLOT;
+    const slotScope = scope.createChild();
+    const slots = getSlots(component.slots, slotName) || getSlots(childSlots, slotName);
+    
+    if (attrs.scope)
     {
-        const slotName = attrs.name || DEFAULT_SLOT;
-        const slotScope = scope.createChild();
-        const slots = getSlots(component.slots, slotName) || getSlots(childSlots, slotName);
-        
-        if (attrs.scope)
+      for (const scopeKey in slotScope)
+      {
+        const scopeValue = slotScope[scopeKey];
+
+        if (Scope.isWatchable(scopeValue))
         {
-          for (const scopeKey in slotScope)
+          scope.watch(scopeValue, (value) =>
           {
-            const scopeValue = slotScope[scopeKey];
-
-            if (Scope.isWatchable(scopeValue))
-            {
-              scope.watch(scopeValue, (value) =>
-              {
-                slotScope.set(scopeKey, scopeValue);
-              });
-            }
-            else
-            {
-              slotScope.set(scopeKey, scopeValue);
-            }
-          }
+            slotScope.set(scopeKey, scopeValue);
+          });
         }
-
-        if (slots)
+        else
         {
-          const controller = createChildNodes(slots, scope, component, slotScope, instance);
-
-          instance.element = controller.element;
+          slotScope.set(scopeKey, scopeValue);
         }
+      }
     }
 
-    return instance;
+    if (slots)
+    {
+      const controller = createChildNodes(slots, scope, component, slotScope, instance);
+
+      instance.element = controller.element;
+    }
+  }
+
+  return instance;
 };

@@ -4,19 +4,19 @@ import { NodeTemplate } from './Node';
 export interface ComponentValue<A, E, S extends string, V extends keyof A> {
     type: Type;
     default?: Expression;
-    changed?: (value: A[V], instance: ComponentInstance<A, E, S>, e: Node[]) => void;
-    initial?: (value: A[V], instance: ComponentInstance<A, E, S>, e: Node[]) => void;
-    update?: (value: A[V], instance: ComponentInstance<A, E, S>, e: Node[]) => void;
+    changed?(value: A[V], instance: ComponentInstance<A, E, S>, e: Node[]): void;
+    initial?(value: A[V], instance: ComponentInstance<A, E, S>, e: Node[]): void;
+    update?(value: A[V], instance: ComponentInstance<A, E, S>, e: Node[]): void;
 }
 export interface ComponentBase<A, E = never, S extends string = never> {
     ref?: string;
     name: string;
     collection: string;
     state?: Expression;
-    render: (instance: ComponentInstance<A, E, S>) => NodeTemplate;
-    created?: (instance: ComponentInstance<A, E, S>, e: Node[]) => void;
-    updated?: (instance: ComponentInstance<A, E, S>, e: Node[]) => void;
-    destroyed?: (instance: ComponentInstance<A, E, S>, e: Node[]) => void;
+    render(instance: ComponentInstance<A, E, S>): NodeTemplate;
+    created?(instance: ComponentInstance<A, E, S>, e: Node[]): void;
+    updated?(instance: ComponentInstance<A, E, S>, e: Node[]): void;
+    destroyed?(instance: ComponentInstance<A, E, S>, e: Node[]): void;
 }
 export declare type IfNever<T, Y, N> = [T] extends [never] ? Y : N;
 export declare type Component<A = never, E = never, S extends string = never> = ComponentBase<A, E, S> & IfNever<A, {}, {

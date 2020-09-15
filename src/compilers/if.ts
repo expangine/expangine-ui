@@ -24,13 +24,9 @@ export const CompilerIf: NodeCompiler = (template, component, scope, parent) =>
       {
         visible = visibleBoolean;
         
-        const previous = instance.element;
         const desired = visible ? controller.element : placeholder;
 
-        if (previous !== desired) 
-        {
-          changeElement(instance, desired);
-        }
+        changeElement(instance, desired);
 
         childScope.setEnabled(visible);
       }

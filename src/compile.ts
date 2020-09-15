@@ -3,55 +3,57 @@ import { isString } from 'expangine-runtime';
 import { ComponentRegistry } from './ComponentRegistry';
 import { NodeCompiler, NodeTemplate, NodeInstance } from './Node';
 import { Scope } from './Scope';
-import { Component } from './Component';
 import { ComponentInstance } from './ComponentInstance';
 import { COMPILER_COMPONENT, COMPILER_DEFAULT, COMPILER_DYNAMIC } from './constants';
 import { compilers } from './compilers';
 
-
-export const RootComponent: Component<any, any, any> =  {
-  collection: 'expangine',
-  name: 'root',
-  attributes: {},
-  events: {},
-  slots: {},
-  render: () => [':slot', {}, {}, []],
-};
-
 export function getCompiler(template: NodeTemplate): NodeCompiler  
 {
-    const [tag] = template;
-    const key = isString(tag) 
-        ? tag in compilers
-            ? tag
-            : tag in ComponentRegistry
-                ? COMPILER_COMPONENT
-                : COMPILER_DEFAULT
-        : COMPILER_DYNAMIC;
+  const [tag] = template;
+  const key = isString(tag) 
+    ? tag in compilers
+      ? tag
+      : tag in ComponentRegistry
+        ? COMPILER_COMPONENT
+        : COMPILER_DEFAULT
+    : COMPILER_DYNAMIC;
 
-    return compilers[key];
+  return compilers[key];
 }
 
 export function compile(template: NodeTemplate, component: ComponentInstance<any, any, any>, scope: Scope, parent?: NodeInstance): NodeInstance
 {
-    return getCompiler(template)(template, component, scope, parent);
+  return getCompiler(template)(template, component, scope, parent);
 }
 
-export function mount(page: any, template: NodeTemplate, replace: Node): ComponentInstance<any, any, any>
+export function mount(data: any, template: NodeTemplate, replace?: Node): ComponentInstance<any, any, any>
 {
-    const rootScope = new Scope(null, { page, refs: {} });
+  const rootScope = new Scope(null, data);
 
-    const instance = new ComponentInstance(RootComponent, { default: template });
-    const compiled = compile(template, instance, rootScope);
+  const instance = new ComponentInstance<any, any, any>({
+    collection: 'expangine',
+    name: 'mounted',
+    attributes: {},
+    events: {},
+    slots: {},
+    render: () => template,
+  });
 
-    if (replace.parentElement) {
-        for (const e of compiled.element) {
-            replace.parentElement.insertBefore(e, replace);
-        }
-        replace.parentElement.removeChild(replace);
+  instance.scope = rootScope;
+
+  const compiled = compile(template, instance, rootScope);
+
+  if (replace && replace.parentElement) 
+  {
+    for (const e of compiled.element) 
+    {
+        replace.parentElement.insertBefore(e, replace);
     }
 
-    instance.node = compiled;
+    replace.parentElement.removeChild(replace);
+  }
 
-    return instance;
+  instance.node = compiled;
+
+  return instance;
 }

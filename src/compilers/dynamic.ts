@@ -4,25 +4,25 @@ import { compile } from '../compile';
 
 export const CompilerDynamic: NodeCompiler = (template, component, scope, parent) =>
 {
-    const [tag] = template;
-    const instance: NodeInstance = { parent, component, scope, element: [document.createComment('dynamic')] };
-    let lastInstance: NodeInstance;
+  const [tag] = template;
+  const instance: NodeInstance = { parent, component, scope, element: [document.createComment('dynamic')] };
+  let lastInstance: NodeInstance;
 
-    component.scope.watch(tag, (tagValue: any) =>
+  scope.watch(tag, (tagValue: any) =>
+  {
+    template[0] = tagValue;
+
+    if (lastInstance)
     {
-        template[0] = tagValue;
+      lastInstance.scope.destroy();
+    }
 
-        if (lastInstance)
-        {
-            lastInstance.scope.destroy();
-        }
+    const dynamicInstance = compile(template, component, scope, parent);
 
-        const dynamicInstance = compile(template, component, scope, parent);
+    changeElement(instance, dynamicInstance.element);
 
-        changeElement(instance, dynamicInstance.element);
+    lastInstance = dynamicInstance;
+  });
 
-        lastInstance = dynamicInstance;
-    });
-
-    return instance;
+  return instance;
 };
