@@ -4,7 +4,7 @@ import { expectHTML } from './helper';
 import { Exprs } from 'expangine-runtime';
 
 
-describe('if compiler', () => 
+describe('show compiler', () => 
 {
 
   it('single text node', () =>
@@ -42,59 +42,66 @@ describe('if compiler', () =>
       '<div style="display: none;">Hello World</div>'
     ]);
   });
-/*
+
   it('multiple text node', () =>
   {
     const d = { visible: false };
-    const i = mount(d, [':show', { condition: Exprs.get('visible') }, {}, ['Hello', 'World']]);
+    const i = mount(d, ['div', {}, {}, [
+      [':show', { condition: Exprs.get('visible') }, {}, ['Hello', 'World']]
+    ]]);
 
     expectHTML(i, [
-      '<!--if-->'
+      '<div><!--show--><!--show--></div>'
     ]);
 
     i.scope.set('visible', true);
 
     expectHTML(i, [
-      'Hello',
-      'World'
+      '<div>HelloWorld</div>'
     ]);
   });
 
   it('empty node', () =>
   {
     const d = { visible: false };
-    const i = mount(d, [':show', { condition: Exprs.get('visible') }, {}, []]);
+    const i = mount(d, ['div', {}, {}, [
+      [':show', { condition: Exprs.get('visible') }, {}, []]
+    ]]);
 
     expectHTML(i, [
-      '<!--if-->'
+      '<div></div>'
     ]);
 
     i.scope.set('visible', true);
 
-    expectHTML(i, []);
+    expectHTML(i, [
+      '<div></div>'
+    ]);
   });
 
   it('expression node', () =>
   {
     const d = { visible: false, content: 'Howdy' };
-    const i = mount(d, [':show', { condition: Exprs.get('visible') }, {}, [
-      Exprs.get('content'),
+    const i = mount(d, ['div', {}, {}, [
+      [':show', { condition: Exprs.get('visible') }, {}, [
+        Exprs.get('content'),
+      ]]
     ]]);
 
     expectHTML(i, [
-      '<!--if-->'
+      '<div><!--show--></div>'
     ]);
 
     i.scope.set('visible', true);
 
     expectHTML(i, [
-      'Howdy'
+      '<div>Howdy</div>'
     ]);
 
     i.scope.set('content', 'Partner');
 
     expectHTML(i, [
-      'Partner'
+      '<div>Partner</div>'
     ]);
   });
 
@@ -107,15 +114,16 @@ describe('if compiler', () =>
     ]]);
 
     expectHTML(i, [
-      '<!--if-->'
+      '<span style="display: none;"><p></p></span>',
+      '<b style="display: none;"></b>'
     ]);
 
     i.scope.set('visible', true);
 
     expectHTML(i, [
-      '<span><p></p></span>',
-      '<b></b>',
+      '<span style=""><p></p></span>',
+      '<b style=""></b>',
     ]);
   });
-*/
+
 });

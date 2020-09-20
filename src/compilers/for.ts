@@ -32,7 +32,7 @@ export const CompilerFor: NodeCompiler = (template, component, scope, parent) =>
         {
           const itemScope = scope.createChild(itemScopeData);
 
-          itemController = createChildNodes(itemTemplate, itemScope, component, itemScope, instance);
+          itemController = createChildNodes(itemTemplate, itemScope, component, instance);
 
           map.set(itemKey, itemController);
         }

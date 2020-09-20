@@ -59,7 +59,7 @@ export const CompilerDefault: NodeCompiler = (template, component, scope, parent
 
   if (childs.length > 0) 
   {
-    const childController = createChildNodes(childs, scope, component, scope, instance);
+    const childController = createChildNodes(childs, scope, component, instance);
 
     for (const child of childController.element)
     {

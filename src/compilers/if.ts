@@ -12,7 +12,7 @@ export const CompilerIf: NodeCompiler = (template, component, scope, parent) =>
 
   if (attrs && attrs.condition && childTemplate) 
   {
-    const controller = createChildNodes(childTemplate, scope, component, childScope, instance);
+    const controller = createChildNodes(childTemplate, childScope, component, instance);
 
     let visible = false;
 

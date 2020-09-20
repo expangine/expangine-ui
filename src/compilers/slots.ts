@@ -37,7 +37,7 @@ export const CompilerSlot: NodeCompiler = (template, component, scope, parent) =
 
     if (slots)
     {
-      const controller = createChildNodes(slots, scope, component, slotScope, instance);
+      const controller = createChildNodes(slots, slotScope, component, instance);
 
       instance.element = controller.element;
     }

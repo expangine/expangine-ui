@@ -26,9 +26,9 @@ export function compile(template: NodeTemplate, component: ComponentInstance<any
   return getCompiler(template)(template, component, scope, parent);
 }
 
-export function mount(data: any, template: NodeTemplate, replace?: Node): ComponentInstance<any, any, any>
+export function mount<D>(data: D, template: NodeTemplate, replace?: Node): ComponentInstance<D, any, any>
 {
-  const rootScope = new Scope(null, data);
+  const rootScope = new Scope<D>(null, data);
 
   const instance = new ComponentInstance<any, any, any>({
     collection: 'expangine',

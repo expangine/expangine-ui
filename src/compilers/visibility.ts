@@ -14,7 +14,7 @@ export const CompilerVisibility: NodeCompiler = (template, component, scope, par
   
   if (attrs && attrs.condition && childTemplate) 
   {   
-    const controller = createChildNodes(childTemplate, scope, component, childScope, instance);
+    const controller = createChildNodes(childTemplate, childScope, component, instance);
     const placeholders = controller.element.map((e) => document.createComment(comment));
     
     instance.element = controller.element.slice();
@@ -32,24 +32,23 @@ export const CompilerVisibility: NodeCompiler = (template, component, scope, par
         const isVisible = (visible === show);
 
         for (let i = 0; i < instance.element.length; i++)
-        {
-          const curr = instance.element[i];
+        { 
           const given = controller.element[i];
-          const place = placeholders[i];
+          const next = isVisible ? given : placeholders[i];
+          const prev = instance.element[i];
 
           if (isStyleElement(given))
           {
             given.style.display = isVisible ? '' : 'none';
           }
-          else if (isVisible && place !== curr && place.parentElement)
+          else if (next !== prev)
           {
-            place.parentElement.replaceChild(curr, place);
-            instance.element[i] = curr;
-          }
-          else if (!isVisible && curr !== place && curr.parentElement)
-          {
-            curr.parentElement.replaceChild(place, curr);
-            instance.element[i] = place;
+            if (prev.parentElement)
+            {
+              prev.parentElement.replaceChild(next, prev);
+            }
+            
+            instance.element[i] = next;
           }
         }
 

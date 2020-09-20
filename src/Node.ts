@@ -57,53 +57,56 @@ export function isNamedSlots(value: any): value is NodeTemplateNamedSlots
 
 export function changeElement(instance: NodeInstance, element: Node[])
 {
-  for (let i = 0; i < element.length; i++) 
+  const target = instance.element;
+
+  if (target.length === 0)
   {
-    const n = element[i];
-    const o = instance.element[i];
-
-    if (o === n) 
-    {
-      continue;
-    }
-
-    if (o) 
-    {
-      if (o.parentElement)
-      {
-        o.parentElement.replaceChild(n, o);
-      }
-      
-      instance.element[i] = n;
-    } 
-    else if (!o && i > 0) 
-    {
-      const prev = instance.element[i - 1];
-      const next = prev.nextSibling;
-
-      if (next && next.parentElement) 
-      {
-        next.parentElement.insertBefore(n, next);
-      } 
-      else if (!next && prev && prev.parentElement) 
-      {
-        prev.parentElement.appendChild(n);
-      }
-
-      instance.element[i] = n;
-    }
+    target.push(...element);
   }
-
-  for (let i = instance.element.length - 1; i >= element.length; i--) 
+  else
   {
-    const o = instance.element[i];
+    const parent = target[0].parentNode;
 
-    if (o.parentElement) 
+    if (parent)
     {
-      o.parentElement.removeChild(o);
+      let prev: Node = target[0].previousSibling;
+
+      for (let i = 0; i < element.length; i++)
+      {
+        const desired = element[i];
+        const current = prev
+          ? prev.nextSibling
+          : target[i];
+
+        if (current !== desired)
+        {
+          if (current)
+          {
+            parent.insertBefore(desired, current);
+          }
+          else if (!prev && parent.firstChild)
+          {
+            parent.insertBefore(desired, parent.firstChild);
+          }
+          else
+          {
+            parent.appendChild(desired);
+          }
+        }
+
+        prev = desired;
+      }
+
+      for (let i = element.length; i < target.length; i++)
+      {
+        if (prev.nextSibling)
+        {
+          parent.removeChild(prev.nextSibling)
+        }
+      }
     }
 
-    instance.element.splice(i, 1);
+    target.splice(0, target.length, ...element);
   }
 }
 
@@ -114,10 +117,10 @@ export interface NodeChildrenController
   destroyScopes(): void;
 }
 
-export function createChildNodes(children: NodeTemplateChild[], scope: Scope, component: ComponentInstance<any, any, any>, childScope: Scope, instance: NodeInstance): NodeChildrenController
+export function createChildNodes(children: NodeTemplateChild[], scope: Scope, component: ComponentInstance<any, any, any>, instance: NodeInstance): NodeChildrenController
 {
   const element: Node[] = [];
-  const scopes: Scope[] = [];
+  const scopes: Scope[] = [scope];
 
   for (const child of children)
   {
@@ -125,7 +128,7 @@ export function createChildNodes(children: NodeTemplateChild[], scope: Scope, co
     {
       element.push(document.createTextNode(child));
     } 
-    else if (child instanceof Expression)
+    else if (Scope.isWatchable(child))
     {
       const textNode = document.createTextNode('');
 
@@ -138,14 +141,17 @@ export function createChildNodes(children: NodeTemplateChild[], scope: Scope, co
     }
     else 
     {
-      const childNode = compile(child, component, childScope, instance);
+      const childNode = compile(child, component, scope, instance);
 
       for (const childElement of childNode.element)
       {
         element.push(childElement);
       }
 
-      scopes.push(childNode.scope);
+      if (childNode.scope !== scope)
+      {
+        scopes.push(childNode.scope);
+      }
 
       if (!instance.children)
       {

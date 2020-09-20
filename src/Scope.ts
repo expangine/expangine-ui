@@ -1,49 +1,40 @@
-import { Expression, isArray } from 'expangine-runtime';
+import { Expression } from 'expangine-runtime';
 import { LiveContext, LiveRuntime } from 'expangine-runtime-live';
 import { Watcher, Node as LinkedNode, observe, unobserve, watch } from 'scrute';
-import { copyProperties, createChildScope, createScope } from './fns';
 import { Off } from './Node';
 
 
 export class Scope<A extends LiveContext = any> 
 {
-  
+
   public parent: Scope | null;
-  public data: A;
   public observed: A;
   public link: LinkedNode<Scope<A>>;
   public children?: LinkedNode<Scope<A>>;
   public disables: number;
   public watchers: LinkedNode<Watcher>;
   
-  public constructor(parent: Scope | null = null, data: any = {}) 
+  public constructor(parent: Scope | null = null, data: A = Object.create(null)) 
   {
     this.parent = parent;
-    this.data = parent ? createChildScope(parent.data, data) : createScope(data);
-    this.observed = observe(this.data);
+    this.observed = observe(data);
     this.disables = 0;
     this.link = new LinkedNode(this);
     this.watchers = LinkedNode.head();
-  }
-
-  public addToParent() 
-  {
-    if (this.parent) 
-    {
-      if (!this.parent.children) {
-        this.parent.children = LinkedNode.head();
-      }
-      this.link.insertAfter(this.parent.children);
-    }
   }
 
   public createChild(data: any = {}, addToParent: boolean = true): Scope 
   {
     const child = new Scope(this, data);
 
-    if (addToParent) 
+    if (addToParent)
     {
-      child.addToParent();
+      if (!this.children)
+      {
+        this.children = LinkedNode.head();
+      }
+
+      this.children.push(child.link);
     }
     
     return child;
@@ -51,17 +42,61 @@ export class Scope<A extends LiveContext = any>
 
   public get<V extends keyof A>(attr: V, defaultValue?: A[V]): A[V] 
   {
-    return attr in this.observed ? this.observed[attr] : defaultValue;
+    return attr in this.observed 
+      ? this.observed[attr]
+      : this.parent
+        ? this.parent.get(attr, defaultValue)
+        : defaultValue;
   }
 
-  public set<V extends keyof A>(attr: V, value: A[V]): void 
+  public has(attr: string | number | symbol): attr is (keyof A)
   {
-    this.observed[attr] = value;
+    return attr in this.observed
+      ? true
+      : this.parent
+        ? this.parent.has(attr)
+        : false;
+  }
+
+  public set<V extends keyof A>(attr: V, value: A[V]): boolean 
+  {
+    if (attr in this.observed)
+    {
+      this.observed[attr] = value;
+    }
+    else if (this.parent)
+    {
+      if (!this.parent.set(attr, value))
+      {
+        this.observed[attr] = value;
+      }
+    }
+    else
+    {
+      return false;
+    }
+
+    return true;
+  }
+
+  public remove<V extends keyof A>(attr: V): void 
+  {
+    if (attr in this.observed)
+    {
+      delete this.observed[attr];
+    }
+    else if (this.parent)
+    {
+      this.parent.remove(attr);
+    }
   }
 
   public setMany(values: Partial<A>) 
   {
-    copyProperties(this.observed, values);
+    for (const prop in values)
+    {
+      this.set(prop, values[prop]);
+    }
   }
 
   public watch(expr: any, onValue: (value: any) => void): Off 
@@ -69,12 +104,12 @@ export class Scope<A extends LiveContext = any>
     const cmd = LiveRuntime.eval(expr);
 
     const watcher = watch(() => {
-      onValue(cmd(this.observed));
+      onValue(cmd(this));
     });
 
     const node = new LinkedNode(watcher);
 
-    node.insertAfter(this.watchers);
+    this.watchers.push(node);
 
     return () => {
       watcher.off();
@@ -86,7 +121,22 @@ export class Scope<A extends LiveContext = any>
   {
     const cmd = LiveRuntime.eval(expr);
 
-    return (extra) => cmd(extra ? createChildScope(this.observed, extra) : this.observed);
+    return (extra) => 
+    {
+      if (extra)
+      {
+        const extraScope = this.createChild(extra);
+        const result = cmd(extraScope);
+
+        extraScope.destroy();
+
+        return result;
+      }
+      else
+      {
+        return cmd(this);
+      }
+    }
   }
 
   public enable(): void 
@@ -99,6 +149,7 @@ export class Scope<A extends LiveContext = any>
       {
         this.watchers.forEach((w) => w.resume());
       }
+
       if (this.children) 
       {
         this.children.forEach((c) => c.enable());
@@ -112,6 +163,7 @@ export class Scope<A extends LiveContext = any>
     {
       this.watchers.forEach((w) => w.pause());
     }
+    
     if (this.children) 
     {
       this.children.forEach((c) => c.disable());
@@ -139,9 +191,29 @@ export class Scope<A extends LiveContext = any>
     unobserve(this.observed);
   }
 
-  public static isWatchable(x: any): x is (Expression | any[])
+  private static registered: boolean = false;
+
+  public static register()
   {
-    return isArray(x) || x instanceof Expression;
+    if (!this.registered)
+    {
+      const { dataSet, dataGet, dataHas, dataRemove } = LiveRuntime;
+
+      LiveRuntime.dataGet = (obj, prop) => obj instanceof Scope ? obj.get(prop) : dataGet(obj, prop);
+      LiveRuntime.dataSet = (obj, prop, value) => obj instanceof Scope ? obj.set(prop, value) : dataSet(obj, prop, value);
+      LiveRuntime.dataHas = (obj, prop) => obj instanceof Scope ? obj.has(prop) : dataHas(obj, prop);
+      LiveRuntime.dataRemove = (obj, prop) => obj instanceof Scope ? obj.remove(prop) : dataRemove(obj, prop);
+
+      this.registered = true;
+    }
+  }
+
+  public static isWatchable(x: any): x is (Expression | [string, ...any[]])
+  {
+    return LiveRuntime.defs.isExpression(x);
   }
 
 }
+
+
+Scope.register();
