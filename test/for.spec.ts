@@ -37,6 +37,24 @@ describe('for compiler', () =>
     expectHTML(i, [
       '<div><!--for--> (0: a) (1: c) (2: d)</div>'
     ]);
+
+    i.scope.observed.items[0] = 'aaa';
+
+    expectHTML(i, [
+      '<div><!--for--> (0: aaa) (1: c) (2: d)</div>'
+    ]);
+
+    i.scope.observed.items = ['b', 'a', 'd'];
+
+    expectHTML(i, [
+      '<div><!--for--> (0: b) (1: a) (2: d)</div>'
+    ]);
+
+    i.scope.observed.items.splice(0, 3, 'e', 'f', 'g');
+
+    expectHTML(i, [
+      '<div><!--for--> (0: e) (1: f) (2: g)</div>'
+    ]);
   });
 
 });

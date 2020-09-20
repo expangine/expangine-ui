@@ -40,27 +40,27 @@ export class Scope<A extends LiveContext = any>
     return child;
   }
 
-  public get<V extends keyof A>(attr: V, defaultValue?: A[V]): A[V] 
+  public get<V extends keyof A>(attr: V, defaultValue?: A[V], here: boolean = false): A[V] 
   {
     return attr in this.observed 
       ? this.observed[attr]
-      : this.parent
+      : this.parent && !here
         ? this.parent.get(attr, defaultValue)
         : defaultValue;
   }
 
-  public has(attr: string | number | symbol): attr is (keyof A)
+  public has(attr: string | number | symbol, here: boolean = false): attr is (keyof A)
   {
     return attr in this.observed
       ? true
-      : this.parent
+      : this.parent && !here
         ? this.parent.has(attr)
         : false;
   }
 
-  public set<V extends keyof A>(attr: V, value: A[V]): boolean 
+  public set<V extends keyof A>(attr: V, value: A[V], here: boolean = false): boolean 
   {
-    if (attr in this.observed)
+    if (attr in this.observed || here)
     {
       this.observed[attr] = value;
     }

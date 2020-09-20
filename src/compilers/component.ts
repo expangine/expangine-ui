@@ -12,12 +12,17 @@ export const CompilerComponent: NodeCompiler = (template, parentComponent, scope
   const componentBase = ComponentRegistry[id as string];
   const component = new ComponentInstance(componentBase, isNamedSlots(childSlots) ? childSlots : undefined, parentComponent);
   const rendered = componentBase.render(component);
-  const localScope = scope.createChild({ this: component, refs: {} });
+  const localScope = scope.createChild({ this: component });
   const instance = compile(rendered, component, localScope, parent);
 
-  if (scope && scope.data.refs && componentBase.ref)
+  if (componentBase.ref && parentComponent)
   {
-      scope.data.refs[componentBase.ref] = component;
+    if (!parentComponent.scope.has('refs', true))
+    {
+      parentComponent.scope.set('refs', {}, true)
+    }
+
+    parentComponent.scope.get('refs')[componentBase.ref] = component;
   }
 
   component.node = instance;

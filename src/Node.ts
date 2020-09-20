@@ -70,6 +70,7 @@ export function changeElement(instance: NodeInstance, element: Node[])
     if (parent)
     {
       let prev: Node = target[0].previousSibling;
+      let removing: Set<Node> = new Set(target);
 
       for (let i = 0; i < element.length; i++)
       {
@@ -77,6 +78,8 @@ export function changeElement(instance: NodeInstance, element: Node[])
         const current = prev
           ? prev.nextSibling
           : target[i];
+
+        removing.delete(desired);
 
         if (current !== desired)
         {
@@ -97,12 +100,9 @@ export function changeElement(instance: NodeInstance, element: Node[])
         prev = desired;
       }
 
-      for (let i = element.length; i < target.length; i++)
+      for (const remove of removing)
       {
-        if (prev.nextSibling)
-        {
-          parent.removeChild(prev.nextSibling)
-        }
+        parent.removeChild(remove);
       }
     }
 
