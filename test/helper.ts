@@ -2,7 +2,7 @@ import { ComponentInstance } from '../src';
 import { Exprs, NumberOps } from 'expangine-runtime';
 
 
-export function expectHTML(instance: ComponentInstance<any, any, any>, html: string[])
+export function expectHTML(instance: ComponentInstance<any, any, any>, html: string[], ignoreWhitespace: boolean = true)
 {
   expect(instance.node.element.length).toBe(html.length);
   
@@ -11,15 +11,25 @@ export function expectHTML(instance: ComponentInstance<any, any, any>, html: str
     const node = instance.node.element[i];
 
     if (node instanceof HTMLElement) {
-      expect(node.outerHTML).toBe(html[i]);
+      expect(processText(node.outerHTML, ignoreWhitespace)).toBe(processText(html[i], ignoreWhitespace));
     } else if (node instanceof Text) {
-      expect(node.textContent).toBe(html[i]);
+      expect(processText(node.textContent, ignoreWhitespace)).toBe(processText(html[i], ignoreWhitespace));
     } else if (node instanceof Comment) {
       expect(`<!--${node.textContent}-->`).toBe(html[i]);
     } else {
       expect(html[i]).toBeNull();
     }
   }
+}
+
+export function processText(input: string, stripWhitespace: boolean): string
+{
+  if (stripWhitespace)
+  {
+    input = input.replace(/>\s+</g, '><');
+  }
+
+  return input;
 }
 
 export function increment(path: string[], by: number = 1)
