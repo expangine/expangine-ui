@@ -68,11 +68,23 @@ export const CompilerComponent: NodeCompiler = (template, parentComponent, scope
 
   if (componentBase.state)
   {
-    for (const state in componentBase.state)
+    for (const stateName in componentBase.state)
     {
-      localScope.watch(componentBase.state[state], (localValue) => 
+      const stateValue = componentBase.state[stateName];
+
+      localScope.set(stateName, localScope.eval(stateValue)(), true);
+    }
+  }
+
+  if (componentBase.computed)
+  {
+    for (const computedName in componentBase.computed)
+    {
+      const computedValue = componentBase.computed[computedName];
+
+      localScope.watch(computedValue, (value) => 
       {
-        localScope.set(state, localValue, true);
+        localScope.set(computedName, value, true);
       });
     }
   }

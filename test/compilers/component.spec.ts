@@ -208,13 +208,13 @@ describe('component compiler', () =>
   });
 
   // test/state-dynamic
-  addComponent<{ text: string }, never, never, { upper: number }>({ 
+  addComponent<{ text: string }, never, never, never, { upper: number }>({ 
     name: 'state-dynamic',
     collection: 'test',
     attributes: {
       text: Types.text(),
     },
-    state: {
+    computed: {
       upper: Exprs.op(TextOps.upper, { value: Exprs.get('text') })
     },
     render: (c) => ['div', {}, {}, [

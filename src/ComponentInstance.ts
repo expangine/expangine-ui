@@ -4,18 +4,19 @@ import { NodeInstance, NodeTemplateNamedSlots, Off, changeElements } from './Nod
 import { compile } from './compile';
 import { Exprs } from 'expangine-runtime';
 
+export type ComponentInstanceAny = ComponentInstance<any, any, any, any, any>;
 
-export class ComponentInstance<A, E, S extends string, L> 
+export class ComponentInstance<A, E, S extends string, L, C> 
 {
-  public component: Component<A, E, S, L>;
+  public component: Component<A, E, S, L, C>;
   public cache: Record<string, any>;
-  public scope: Scope<A & L & { emit: E, refs: Record<string, any> }>;
+  public scope: Scope<A & L & C & { emit: E, refs: Record<string, any> }>;
   public outerScope: Scope;
   public node?: NodeInstance;
-  public parent?: ComponentInstance<any, any, any, any>;
+  public parent?: ComponentInstanceAny;
   public slots?: NodeTemplateNamedSlots;
 
-  public constructor(component: Component<A, E, S, L>, scope: Scope, slots?: NodeTemplateNamedSlots, parent?: ComponentInstance<any, any, any, any>, outerScope?: Scope) 
+  public constructor(component: Component<A, E, S, L, C>, scope: Scope, slots?: NodeTemplateNamedSlots, parent?: ComponentInstanceAny, outerScope?: Scope) 
   {
     this.component = component;
     this.cache = Object.create(null);

@@ -1,7 +1,7 @@
 import { Expression, isObject, isString, isArray } from 'expangine-runtime';
 import { DEFAULT_SLOT } from './constants';
 import { Scope } from './Scope';
-import { ComponentInstance } from './ComponentInstance';
+import { ComponentInstanceAny } from './ComponentInstance';
 import { compile } from './compile';
 
 
@@ -21,13 +21,13 @@ export type NodeTemplate = [
 ];
 
 
-export type NodeCompiler = (template: NodeTemplate, component: ComponentInstance<any, any, any, any>, scope: Scope, parent?: NodeInstance) => NodeInstance;
+export type NodeCompiler = (template: NodeTemplate, component: ComponentInstanceAny, scope: Scope, parent?: NodeInstance) => NodeInstance;
 
 export interface NodeInstance 
 {
   parent?: NodeInstance;
   children?: NodeInstance[];
-  component: ComponentInstance<any, any, any, any>;
+  component: ComponentInstanceAny;
   element: Node[];
   scope: Scope;
 }
@@ -115,7 +115,7 @@ export interface NodeChildrenController
   destroyScopes(): void;
 }
 
-export function createChildNodes(children: NodeTemplateChild[], scope: Scope, component: ComponentInstance<any, any, any, any>, instance: NodeInstance): NodeChildrenController
+export function createChildNodes(children: NodeTemplateChild[], scope: Scope, component: ComponentInstanceAny, instance: NodeInstance): NodeChildrenController
 {
   const element: Node[] = [];
   const scopes: Scope[] = [scope];
