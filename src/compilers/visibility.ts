@@ -53,7 +53,7 @@ export const CompilerVisibility: NodeCompiler = (template, component, scope, par
         }
 
         childScope.setEnabled(isVisible);
-      }           
+      }
     });
   }
   else

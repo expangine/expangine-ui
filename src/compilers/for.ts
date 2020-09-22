@@ -24,12 +24,13 @@ export const CompilerFor: NodeCompiler = (template, component, scope, parent) =>
       for (let itemIndex = 0; itemIndex < items.length; itemIndex++)
       {
         const item = items[itemIndex];
-        const itemKey = key({ [propItem]: item, [propIndex]: itemIndex });
+        const itemScopeData = { [propItem]: item, [propIndex]: itemIndex };
+        const itemKey = key({ ...itemScopeData });
         let itemController = map.get(itemKey);
 
         if (!itemController)
         {
-          const itemScope = scope.createChild({ [propItem]: item, [propIndex]: itemIndex });
+          const itemScope = scope.createChild(itemScopeData);
 
           itemController = createChildNodes(itemTemplate, itemScope, component, instance);
 
@@ -37,7 +38,7 @@ export const CompilerFor: NodeCompiler = (template, component, scope, parent) =>
         }
         else
         {
-          itemController.updateScopes({ [propItem]: item, [propIndex]: itemIndex });
+          itemController.updateScopes(itemScopeData);
         }
 
         keys.add(itemKey);

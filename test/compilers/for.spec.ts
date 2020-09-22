@@ -57,4 +57,46 @@ describe('for compiler', () =>
     ]);
   });
 
+  it('simple items text with item alias', () =>
+  {
+    const d = { items: [ 'a', 'b', 'c' ] };
+    const i = mount(d, ['div', {}, {}, [
+      [':for', { 
+        items: Exprs.get('items'), 
+        key: Exprs.get('x'),
+        item: 'x'
+      }, {}, [
+        Exprs.template(' ({index}: {item})', {
+          index: Exprs.get('index'),
+          item: Exprs.get('x'),
+        }),
+      ]]
+    ]]);
+
+    expectHTML(i, [
+      '<div><!--for--> (0: a) (1: b) (2: c)</div>'
+    ]);
+  });
+
+  it('simple items text with item alias', () =>
+  {
+    const d = { items: [ 'a', 'b', 'c' ] };
+    const i = mount(d, ['div', {}, {}, [
+      [':for', { 
+        items: Exprs.get('items'), 
+        key: Exprs.get('item'),
+        index: 'x',
+      }, {}, [
+        Exprs.template(' ({index}: {item})', {
+          index: Exprs.get('x'),
+          item: Exprs.get('item'),
+        }),
+      ]]
+    ]]);
+
+    expectHTML(i, [
+      '<div><!--for--> (0: a) (1: b) (2: c)</div>'
+    ]);
+  });
+
 });
