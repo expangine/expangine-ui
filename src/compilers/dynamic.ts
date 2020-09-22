@@ -1,4 +1,4 @@
-import { NodeCompiler, NodeInstance, changeElement } from '../Node';
+import { NodeCompiler, NodeInstance, changeElements } from '../Node';
 import { compile } from '../compile';
 
 
@@ -19,7 +19,7 @@ export const CompilerDynamic: NodeCompiler = (template, component, scope, parent
 
     const dynamicInstance = compile(template, component, scope, parent);
 
-    changeElement(instance, dynamicInstance.element);
+    changeElements(instance.element, dynamicInstance.element);
 
     lastInstance = dynamicInstance;
   });

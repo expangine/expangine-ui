@@ -1,4 +1,4 @@
-import { NodeCompiler, NodeInstance, NodeChildrenController, getSlots, createChildNodes, changeElement } from '../Node';
+import { NodeCompiler, NodeInstance, NodeChildrenController, getSlots, createChildNodes, changeElements } from '../Node';
 
 
 export const CompilerFor: NodeCompiler = (template, component, scope, parent) => 
@@ -44,7 +44,7 @@ export const CompilerFor: NodeCompiler = (template, component, scope, parent) =>
         newChildren.push(...itemController.element);
       }
 
-      changeElement(instance, newChildren);
+      changeElements(instance.element, newChildren);
 
       map.forEach((entryValue, entryKey) => 
       {

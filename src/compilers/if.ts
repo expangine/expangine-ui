@@ -1,4 +1,4 @@
-import { NodeCompiler, NodeInstance, getSlots, changeElement, createChildNodes } from '../Node';
+import { NodeCompiler, NodeInstance, getSlots, changeElements, createChildNodes } from '../Node';
 
 
 export const CompilerIf: NodeCompiler = (template, component, scope, parent) => 
@@ -26,7 +26,7 @@ export const CompilerIf: NodeCompiler = (template, component, scope, parent) =>
         
         const desired = visible ? controller.element : placeholder;
 
-        changeElement(instance, desired);
+        changeElements(instance.element, desired);
 
         childScope.setEnabled(visible);
       }

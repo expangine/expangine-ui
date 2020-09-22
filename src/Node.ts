@@ -55,10 +55,8 @@ export function isNamedSlots(value: any): value is NodeTemplateNamedSlots
   return typeof value === 'object' && !Array.isArray(value);
 }
 
-export function changeElement(instance: NodeInstance, element: Node[])
+export function changeElements(target: Node[], element: Node[])
 {
-  const target = instance.element;
-
   if (target.length === 0)
   {
     target.push(...element);

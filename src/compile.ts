@@ -1,7 +1,7 @@
 
 import { isString } from 'expangine-runtime';
 import { ComponentRegistry } from './ComponentRegistry';
-import { NodeCompiler, NodeTemplate, NodeInstance } from './Node';
+import { NodeCompiler, NodeTemplate, NodeInstance, changeElements } from './Node';
 import { Scope } from './Scope';
 import { ComponentInstance } from './ComponentInstance';
 import { COMPILER_COMPONENT, COMPILER_DEFAULT, COMPILER_DYNAMIC } from './constants';
@@ -41,14 +41,9 @@ export function mount<D>(data: D, template: NodeTemplate, replace?: Node): Compo
 
   const compiled = compile(template, instance, rootScope);
 
-  if (replace && replace.parentElement) 
+  if (replace) 
   {
-    for (const e of compiled.element) 
-    {
-        replace.parentElement.insertBefore(e, replace);
-    }
-
-    replace.parentElement.removeChild(replace);
+    changeElements([replace], compiled.element);
   }
 
   instance.node = compiled;

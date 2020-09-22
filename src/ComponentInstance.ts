@@ -1,6 +1,6 @@
 import { Scope } from './Scope';
 import { Component } from './Component';
-import { NodeInstance, NodeTemplateNamedSlots, Off, changeElement } from './Node';
+import { NodeInstance, NodeTemplateNamedSlots, Off, changeElements } from './Node';
 import { compile } from './compile';
 import { Exprs } from 'expangine-runtime';
 
@@ -58,7 +58,7 @@ export class ComponentInstance<A, E, S extends string>
     const rendered = this.component.render(this);
     const node = compile(rendered, this, this.scope);
 
-    changeElement(this.node, node.element);
+    changeElements(this.node.element, node.element);
     
     this.node = node;
   }
