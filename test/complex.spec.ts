@@ -35,7 +35,6 @@ describe('complex', () =>
             Exprs.get('item', 'label'),
           ]]
         ]],
-        
       ]]
     ]]);
 

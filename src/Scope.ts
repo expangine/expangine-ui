@@ -1,4 +1,4 @@
-import { Expression } from 'expangine-runtime';
+import { Expression, DataTypes } from 'expangine-runtime';
 import { LiveContext, LiveRuntime } from 'expangine-runtime-live';
 import { Watcher, Node as LinkedNode, observe, unobserve, watch } from 'scrute';
 import { Off } from './Node';
@@ -99,12 +99,23 @@ export class Scope<A extends LiveContext = any>
     }
   }
 
-  public watch(expr: any, onValue: (value: any) => void): Off 
+  public watch(expr: any, onValue: (value: any) => void, immediate: boolean = true, equalityCheck: boolean = false): Off 
   {
     const cmd = LiveRuntime.eval(expr);
+    let first: boolean = true;
+    let last: any = undefined;
 
     const watcher = watch(() => {
-      onValue(cmd(this));
+      const result = cmd(this);
+
+      if (immediate || !first) {
+        if (first || (!equalityCheck || !DataTypes.equals(last, result))) {
+          onValue(result);
+        }
+      }
+
+      last = equalityCheck ? DataTypes.copy(result) : result;
+      first = false;
     });
 
     const node = new LinkedNode(watcher);

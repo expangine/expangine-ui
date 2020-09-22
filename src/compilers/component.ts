@@ -1,4 +1,4 @@
-import { Type, isObject } from 'expangine-runtime';
+import { Type, isObject, Exprs } from 'expangine-runtime';
 import { NodeCompiler, isNamedSlots } from '../Node';
 import { Scope } from '../Scope';
 import { ComponentRegistry } from '../ComponentRegistry';
@@ -10,22 +10,9 @@ export const CompilerComponent: NodeCompiler = (template, parentComponent, scope
 {
   const [id, attrs, events, childSlots] = template;
   const componentBase = ComponentRegistry[id as string];
-  const component = new ComponentInstance(componentBase, isNamedSlots(childSlots) ? childSlots : undefined, parentComponent);
-  const rendered = componentBase.render(component);
-  const localScope = scope.createChild({ this: component });
-  const instance = compile(rendered, component, localScope, parent);
+  const component = new ComponentInstance(componentBase, isNamedSlots(childSlots) ? childSlots : undefined, parentComponent);  
+  const localScope = new Scope<any>(null, { this: component, emit: {} });
 
-  if (componentBase.ref && parentComponent)
-  {
-    if (!parentComponent.scope.has('refs', true))
-    {
-      parentComponent.scope.set('refs', {}, true)
-    }
-
-    parentComponent.scope.get('refs')[componentBase.ref] = component;
-  }
-
-  component.node = instance;
   component.scope = localScope;
 
   if (componentBase.attributes)
@@ -45,26 +32,24 @@ export const CompilerComponent: NodeCompiler = (template, parentComponent, scope
 
         scope.watch(attrInput, (v) =>
         {
-          localScope.set(attr, v);
+          localScope.set(attr, v, true);
 
-          if (instance.element)
+          if (first && attrObject.initial)
           {
-              if (first && attrObject.initial)
-              {
-                attrObject.initial(v, component, instance.element);
-              }
-              else if (!first && attrObject.changed)
-              {
-                attrObject.changed(v, component, instance.element);
-              }
-              if (attrObject.update)
-              {
-                attrObject.update(v, component, instance.element);
-              }
-              if (!first && componentBase.updated)
-              {
-                componentBase.updated(component, instance.element);
-              }
+            attrObject.initial(v, component);
+          }
+          else if (!first && attrObject.changed)
+          {
+            attrObject.changed(v, component);
+          }
+          if (attrObject.update)
+          {
+            attrObject.update(v, component);
+          }
+
+          if (!first && componentBase.updated)
+          {
+            componentBase.updated(component);
           }
           
           first = false;
@@ -72,20 +57,20 @@ export const CompilerComponent: NodeCompiler = (template, parentComponent, scope
       }
       else
       {
-        localScope.set(attr, attrInput);
+        localScope.set(attr, attrInput, true);
       }
     }
   }
 
   if (componentBase.state)
   {
-    const localState = scope.eval(componentBase.state)();
+    const localState = localScope.eval(componentBase.state)();
 
     if (isObject(localState)) 
     {
       for (const stateName in localState)
       {
-        localScope.set(stateName, localState[stateName]);
+        localScope.set(stateName, localState[stateName], true);
       }
     }
   }
@@ -105,14 +90,33 @@ export const CompilerComponent: NodeCompiler = (template, parentComponent, scope
       {
         const listener = localScope.eval(eventValue);
 
-        component.on(ev, listener);
+        localScope.watch(
+          Exprs.get('emit', ev),
+          listener,
+          false
+        );
       }
     }
   }
 
-  if (componentBase.created && instance.element) 
+  const rendered = componentBase.render(component);
+  const instance = compile(rendered, component, localScope, parent);
+
+  component.node = instance;
+
+  if (componentBase.created) 
   {
-    componentBase.created(component, instance.element);
+    componentBase.created(component);
+  }
+
+  if (componentBase.ref && parentComponent)
+  {
+    if (!parentComponent.scope.has('refs', true))
+    {
+      parentComponent.scope.set('refs', {}, true)
+    }
+
+    parentComponent.scope.get('refs')[componentBase.ref] = component;
   }
   
   return instance;

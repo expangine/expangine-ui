@@ -1,6 +1,6 @@
 
-import { mount } from '../src';
-import { expectHTML, increment } from './helper';
+import { mount } from '../../src';
+import { expectHTML, increment } from '../helper';
 import { Exprs } from 'expangine-runtime';
 
 

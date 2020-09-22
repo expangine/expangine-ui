@@ -3,34 +3,42 @@ import { DEFAULT_SLOT } from '../constants';
 import { Scope } from '../Scope';
 
 
+export const COMPILER_SLOT_COMMENT = 'slot';
+
 export const CompilerSlot: NodeCompiler = (template, component, scope, parent) => 
 {
   const [, attrs, , childSlots] = template;
-  const element = [document.createComment('slot')];
+  const element = [document.createComment(COMPILER_SLOT_COMMENT)];
   const instance: NodeInstance = { parent, component, scope, element };
 
   if (attrs)
   {
     const slotName = attrs.name || DEFAULT_SLOT;
-    const slotScope = scope.createChild();
-    const slots = getSlots(component.slots, slotName) || getSlots(childSlots, slotName);
+    const componentSlots = getSlots(component.slots, slotName);
+    const slotOverride = componentSlots.length > 0;
+    const slots = slotOverride
+      ? componentSlots
+      : getSlots(childSlots, slotName);
+    const slotScope = slotOverride && component.parent?.scope
+      ? component.parent.scope.createChild()
+      : scope.createChild();
     
     if (attrs.scope)
     {
-      for (const scopeKey in slotScope)
+      for (const scopeKey in attrs.scope)
       {
-        const scopeValue = slotScope[scopeKey];
+        const scopeValue = attrs.scope[scopeKey];
 
         if (Scope.isWatchable(scopeValue))
         {
           scope.watch(scopeValue, (value) =>
           {
-            slotScope.set(scopeKey, scopeValue);
+            slotScope.set(scopeKey, value, true);
           });
         }
         else
         {
-          slotScope.set(scopeKey, scopeValue);
+          slotScope.set(scopeKey, scopeValue, true);
         }
       }
     }

@@ -10,7 +10,7 @@ export type NodeTemplateTag = string | Expression;
 export type NodeTemplateValues = Record<string, Expression | any>; // when value is Expression, that expression is watched
 export type NodeTemplateEvents = Record<string, Expression | any | ((payload: any) => any)>;
 export type NodeTemplateChild = string | NodeTemplate | Expression;
-export type NodeTemplateNamedSlots = Record<string, NodeTemplateChild>;
+export type NodeTemplateNamedSlots = Record<string, NodeTemplateChild[]>;
 export type NodeTemplateSlots = NodeTemplateChild[] | NodeTemplateNamedSlots;
 
 export type NodeTemplate = [
@@ -45,7 +45,7 @@ export function getSlots(slots?: NodeTemplateSlots, name: string = DEFAULT_SLOT)
     : isArray(slots)
       ? slots
       : isObject(slots) && slots[name]
-        ? [slots[name]]
+        ? slots[name]
         : [];
 }
 

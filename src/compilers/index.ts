@@ -6,7 +6,7 @@ import { CompilerDynamic } from './dynamic';
 import { CompilerIf } from './if';
 import { CompilerVisibility } from './visibility';
 import { CompilerComponent } from './component';
-import { CompilerSlot } from './slots';
+import { CompilerSlot } from './slot';
 import { CompilerFor } from './for';
 
 
