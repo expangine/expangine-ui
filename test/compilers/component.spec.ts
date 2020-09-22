@@ -1,6 +1,6 @@
 
 import { mount, addComponent } from '../../src';
-import { expectHTML } from '../helper';
+import { expectHTML, increment } from '../helper';
 import { Exprs, Types, AnyOps } from 'expangine-runtime';
 
 
@@ -80,6 +80,28 @@ describe('component compiler', () =>
 
     expectHTML(i, [
       '<button>Changed Action</button>',
+    ]);
+  });
+
+  it('simple button emit event', () =>
+  {
+    const d = { text: 'Action', clicks: 0 };
+    const i = mount(d, ['test/button', {}, { click: increment(['clicks']) }, {
+      default: [Exprs.template('Clicks ({clicks})', {
+        clicks: Exprs.get('clicks'),
+      })],
+    }]);
+
+    expectHTML(i, [
+      '<button>Clicks (0)</button>',
+    ]);
+
+    (i.node.element[0] as HTMLElement).click();
+
+    expect(i.scope.observed.clicks).toBe(1);
+
+    expectHTML(i, [
+      '<button>Clicks (1)</button>',
     ]);
   });
 

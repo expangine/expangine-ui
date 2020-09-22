@@ -75,7 +75,7 @@ export const CompilerComponent: NodeCompiler = (template, parentComponent, scope
     }
   }
 
-  if (isObject(events) && componentBase.events) 
+  if (isObject(events) && componentBase.events && component.parent?.scope) 
   {
     for (const ev in events) 
     {
@@ -88,7 +88,7 @@ export const CompilerComponent: NodeCompiler = (template, parentComponent, scope
 
       if (Scope.isWatchable(eventValue)) 
       {
-        const listener = localScope.eval(eventValue);
+        const listener = component.parent.scope.eval(eventValue);
 
         localScope.watch(
           Exprs.get('emit', ev),
