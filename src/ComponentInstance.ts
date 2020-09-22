@@ -14,7 +14,6 @@ export class ComponentInstance<A, E, S extends string>
   public node?: NodeInstance;
   public parent?: ComponentInstance<any, any, any>;
   public slots?: NodeTemplateNamedSlots;
-  public listeners: Record<keyof E, Array<(payload: any) => any>>;
 
   public constructor(component: Component<A, E, S>, scope: Scope, slots?: NodeTemplateNamedSlots, parent?: ComponentInstance<any, any, any>, outerScope?: Scope) 
   {
@@ -24,7 +23,6 @@ export class ComponentInstance<A, E, S extends string>
     this.outerScope = outerScope || scope;
     this.slots = slots;
     this.parent = parent;
-    this.listeners = Object.create(null);
   }
 
   public trigger<K extends keyof E>(eventName: K, payload: E[K], evalScope: Scope = this.scope): void
@@ -66,7 +64,6 @@ export class ComponentInstance<A, E, S extends string>
   public destroy(): void 
   {
     this.scope.destroy();
-    this.listeners = Object.create(null);
   }
 
 }
