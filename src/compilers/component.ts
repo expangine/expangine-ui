@@ -1,4 +1,4 @@
-import { Type, isObject, Exprs } from 'expangine-runtime';
+import { Type, isObject } from 'expangine-runtime';
 import { NodeCompiler, isNamedSlots } from '../Node';
 import { Scope } from '../Scope';
 import { ComponentRegistry } from '../ComponentRegistry';
@@ -10,10 +10,10 @@ export const CompilerComponent: NodeCompiler = (template, parentComponent, scope
 {
   const [id, attrs, events, childSlots] = template;
   const componentBase = ComponentRegistry[id as string];
-  const component = new ComponentInstance(componentBase, isNamedSlots(childSlots) ? childSlots : undefined, parentComponent);  
-  const localScope = new Scope<any>(null, { this: component, emit: {} });
-
-  component.scope = localScope;
+  const localScope = new Scope<any>(null, { emit: {}, refs: {} });
+  const component = new ComponentInstance(componentBase, localScope, isNamedSlots(childSlots) ? childSlots : undefined, parentComponent, scope);  
+  
+  localScope.set('this', component, true);
 
   if (componentBase.attributes)
   {
@@ -75,7 +75,7 @@ export const CompilerComponent: NodeCompiler = (template, parentComponent, scope
     }
   }
 
-  if (isObject(events) && componentBase.events && component.parent?.scope) 
+  if (isObject(events) && componentBase.events) 
   {
     for (const ev in events) 
     {
@@ -88,13 +88,9 @@ export const CompilerComponent: NodeCompiler = (template, parentComponent, scope
 
       if (Scope.isWatchable(eventValue)) 
       {
-        const listener = component.parent.scope.eval(eventValue);
+        const listener = scope.eval(eventValue);
 
-        localScope.watch(
-          Exprs.get('emit', ev),
-          listener,
-          false
-        );
+        component.on(ev, listener);
       }
     }
   }
@@ -111,11 +107,6 @@ export const CompilerComponent: NodeCompiler = (template, parentComponent, scope
 
   if (componentBase.ref && parentComponent)
   {
-    if (!parentComponent.scope.has('refs', true))
-    {
-      parentComponent.scope.set('refs', {}, true)
-    }
-
     parentComponent.scope.get('refs')[componentBase.ref] = component;
   }
   

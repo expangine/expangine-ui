@@ -25,11 +25,11 @@ describe('component compiler', () =>
     events: {
       click: Types.null(),
     },
-    render: () => ['button', {
+    render: (c) => ['button', {
       name: Exprs.get('name'),
       type: Exprs.get('type'),
     }, { 
-      click: Exprs.set(Exprs.get(), 'emit', 'click').to(Exprs.const(null)) ,
+      click: () => c.trigger('click', null),
     }, [
       [':slot', {}, {}, [
         Exprs.get('content'),

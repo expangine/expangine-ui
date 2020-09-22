@@ -8,6 +8,7 @@ export interface DefaultEventObject
   stop: boolean;
   prevent: boolean;
   nativeEvent: Event;
+  scope: Scope;
 }
 
 export const CompilerDefault: NodeCompiler = (template, component, scope, parent) => 
@@ -50,51 +51,47 @@ export const CompilerDefault: NodeCompiler = (template, component, scope, parent
         capture:  hasModifier(eventParts, 'capture'),
       };
 
-      if (isFunction(eventValue)) 
+      const handler = isFunction(eventValue)
+        ? eventValue
+        : scope.eval(eventValue);
+
+      element.addEventListener(eventName, (nativeEvent) => 
       {
-        element.addEventListener(eventName, eventValue, listenerOptions);
-      } 
-      else
-      { 
-        const listener = scope.eval(eventValue);
-
-        element.addEventListener(eventName, (nativeEvent) => 
+        for (const modifier of eventParts)
         {
-          for (const modifier of eventParts)
+          if (modifier in modifierHandlers)
           {
-            if (modifier in modifierHandlers)
+            if (!modifierHandlers[modifier](element, nativeEvent))
             {
-              if (!modifierHandlers[modifier](element, nativeEvent))
-              {
-                return;
-              }
+              return;
             }
           }
+        }
 
-          const eventObject: DefaultEventObject = {
-            nativeEvent,
-            stop: false,
-            prevent: false,
-          };
+        const eventObject: DefaultEventObject = {
+          nativeEvent,
+          scope,
+          stop: false,
+          prevent: false,
+        };
 
-          if (listener(eventObject) === false) 
+        if (handler(eventObject) === false) 
+        {
+          return false;
+        }
+
+        for (const modifier in eventObject)
+        {
+          if (eventObject[modifier] && modifier in modifierHandlers)
           {
-            return false;
-          }
-
-          for (const modifier in eventObject)
-          {
-            if (eventObject[modifier] && modifier in modifierHandlers)
+            if (!modifierHandlers[modifier](element, nativeEvent))
             {
-              if (!modifierHandlers[modifier](element, nativeEvent))
-              {
-                return;
-              }
+              return;
             }
           }
+        }
 
-        }, listenerOptions);
-      }
+      }, listenerOptions);
     }
   }
 

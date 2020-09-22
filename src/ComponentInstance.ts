@@ -2,61 +2,50 @@ import { Scope } from './Scope';
 import { Component } from './Component';
 import { NodeInstance, NodeTemplateNamedSlots, Off, changeElement } from './Node';
 import { compile } from './compile';
+import { Exprs } from 'expangine-runtime';
 
 
 export class ComponentInstance<A, E, S extends string> 
 {
   public component: Component<A, E, S>;
   public cache: Record<string, any>;
-  public scope: Scope<A>;
+  public scope: Scope<A & { emit: E, refs: Record<string, ComponentInstance<any, any, any>> }>;
+  public outerScope: Scope;
   public node?: NodeInstance;
   public parent?: ComponentInstance<any, any, any>;
   public slots?: NodeTemplateNamedSlots;
   public listeners: Record<keyof E, Array<(payload: any) => any>>;
 
-  public constructor(component: Component<A, E, S>, slots?: NodeTemplateNamedSlots, parent?: ComponentInstance<any, any, any>) 
+  public constructor(component: Component<A, E, S>, scope: Scope, slots?: NodeTemplateNamedSlots, parent?: ComponentInstance<any, any, any>, outerScope?: Scope) 
   {
     this.component = component;
     this.cache = Object.create(null);
-    this.scope = new Scope(parent?.scope);
+    this.scope = scope;
+    this.outerScope = outerScope || scope;
     this.slots = slots;
     this.parent = parent;
     this.listeners = Object.create(null);
   }
 
-  public trigger<K extends keyof E>(eventName: K, payload: E[K]): void 
+  public trigger<K extends keyof E>(eventName: K, payload: E[K], evalScope: Scope = this.scope): void
   {
-    if (eventName in this.listeners) 
-    {
-      this.listeners[eventName].forEach((l) => l(payload));
-    }
+    this.scope.observed.emit[eventName] = evalScope.eval(payload)();
   }
 
   public on<K extends keyof E>(eventName: K, listener: (payload: E[K]) => any): Off 
   {
-    if (!(eventName in this.listeners))
-    { 
-      this.listeners[eventName] = [];
-    }
-
-    this.listeners[eventName].push(listener);
-
-    return () => 
-    {
-      const i = this.listeners[eventName].indexOf(listener);
-
-      if (i !== -1) 
-      {
-          this.listeners[eventName].splice(i, 1);
-      }
-    };
+    return this.scope.watch(
+      Exprs.get('emit', eventName),
+      listener,
+      false
+    );
   }
 
   public update(): void 
   {
     if (this.component.updated && this.node) 
     {
-      this.component.updated(this, this.node.element);
+      this.component.updated(this);
     }
   }
 

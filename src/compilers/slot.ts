@@ -19,8 +19,8 @@ export const CompilerSlot: NodeCompiler = (template, component, scope, parent) =
     const slots = slotOverride
       ? componentSlots
       : getSlots(childSlots, slotName);
-    const slotScope = slotOverride && component.parent?.scope
-      ? component.parent.scope.createChild()
+    const slotScope = slotOverride
+      ? component.outerScope.createChild()
       : scope.createChild();
     
     if (attrs.scope)

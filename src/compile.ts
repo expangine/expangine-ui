@@ -28,7 +28,7 @@ export function compile(template: NodeTemplate, component: ComponentInstance<any
 
 export function mount<D>(data: D, template: NodeTemplate, replace?: Node): ComponentInstance<D, any, any>
 {
-  const rootScope = new Scope<D>(null, data);
+  const rootScope = new Scope<D>(null, { ...data, refs: {} });
 
   const instance = new ComponentInstance<any, any, any>({
     collection: 'expangine',
@@ -37,9 +37,7 @@ export function mount<D>(data: D, template: NodeTemplate, replace?: Node): Compo
     events: {},
     slots: {},
     render: () => template,
-  });
-
-  instance.scope = rootScope;
+  }, rootScope);
 
   const compiled = compile(template, instance, rootScope);
 
