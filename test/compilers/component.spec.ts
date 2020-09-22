@@ -1,7 +1,7 @@
 
 import { mount, addComponent } from '../../src';
 import { expectHTML, increment } from '../helper';
-import { Exprs, Types, AnyOps } from 'expangine-runtime';
+import { Exprs, Types, AnyOps, TextOps } from 'expangine-runtime';
 
 
 describe('component compiler', () => 
@@ -172,5 +172,78 @@ describe('component compiler', () =>
       </ol>`,
     ]);
   });
+
+  // test/state-static
+  addComponent<never, never, never, { count: number }>({ 
+    name: 'state-static',
+    collection: 'test',
+    state: {
+      count: Exprs.const(0),
+    },
+    render: (c) => ['div', {}, { 
+      click: increment(['count']),
+    }, [
+      Exprs.get('count'),
+    ]],
+  });
+
+  it('button with static state', () =>
+  {
+    const i = mount({}, ['test/state-static', { ref: 'd' }]);
+
+    expectHTML(i, [
+      `<div>0</div>`,
+    ]);
+
+    expect(i.scope.observed.refs.d).toBeDefined();
+    expect(i.scope.observed.refs.d.count).toBe(0);
+
+    (i.node.element[0] as HTMLElement).click();
+
+    expectHTML(i, [
+      `<div>1</div>`,
+    ]);
+
+    expect(i.scope.observed.refs.d.count).toBe(1);
+  });
+
+  // test/state-dynamic
+  addComponent<{ text: string }, never, never, { upper: number }>({ 
+    name: 'state-dynamic',
+    collection: 'test',
+    attributes: {
+      text: Types.text(),
+    },
+    state: {
+      upper: Exprs.op(TextOps.upper, { value: Exprs.get('text') })
+    },
+    render: (c) => ['div', {}, {}, [
+      Exprs.get('upper'),
+    ]],
+  });
+
+  it('button with dynamic state', () =>
+  {
+    const i = mount({ content: 'Hello' }, ['test/state-dynamic', { ref: 'd', text: Exprs.get('content') }]);
+
+    expectHTML(i, [
+      `<div>HELLO</div>`,
+    ]);
+
+    expect(i.scope.observed.refs.d).toBeDefined();
+    expect(i.scope.observed.refs.d.text).toBe('Hello');
+    expect(i.scope.observed.refs.d.upper).toBe('HELLO');
+
+    i.scope.set('content', 'World');
+
+    expectHTML(i, [
+      `<div>WORLD</div>`,
+    ]);
+
+    expect(i.scope.observed.refs.d.text).toBe('World');
+    expect(i.scope.observed.refs.d.upper).toBe('WORLD');
+  });
+
+
 
 });

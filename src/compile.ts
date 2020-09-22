@@ -21,21 +21,22 @@ export function getCompiler(template: NodeTemplate): NodeCompiler
   return compilers[key];
 }
 
-export function compile(template: NodeTemplate, component: ComponentInstance<any, any, any>, scope: Scope, parent?: NodeInstance): NodeInstance
+export function compile(template: NodeTemplate, component: ComponentInstance<any, any, any, any>, scope: Scope, parent?: NodeInstance): NodeInstance
 {
   return getCompiler(template)(template, component, scope, parent);
 }
 
-export function mount<D>(data: D, template: NodeTemplate, replace?: Node): ComponentInstance<D, any, any>
+export function mount<D>(data: D, template: NodeTemplate, replace?: Node): ComponentInstance<D, any, any, any>
 {
   const rootScope = new Scope<D>(null, { ...data, refs: {} });
 
-  const instance = new ComponentInstance<any, any, any>({
+  const instance = new ComponentInstance<any, any, any, any>({
     collection: 'expangine',
     name: 'mounted',
     attributes: {},
     events: {},
     slots: {},
+    state: {},
     render: () => template,
   }, rootScope);
 

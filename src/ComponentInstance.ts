@@ -5,17 +5,17 @@ import { compile } from './compile';
 import { Exprs } from 'expangine-runtime';
 
 
-export class ComponentInstance<A, E, S extends string> 
+export class ComponentInstance<A, E, S extends string, L> 
 {
-  public component: Component<A, E, S>;
+  public component: Component<A, E, S, L>;
   public cache: Record<string, any>;
-  public scope: Scope<A & { emit: E, refs: Record<string, ComponentInstance<any, any, any>> }>;
+  public scope: Scope<A & L & { emit: E, refs: Record<string, any> }>;
   public outerScope: Scope;
   public node?: NodeInstance;
-  public parent?: ComponentInstance<any, any, any>;
+  public parent?: ComponentInstance<any, any, any, any>;
   public slots?: NodeTemplateNamedSlots;
 
-  public constructor(component: Component<A, E, S>, scope: Scope, slots?: NodeTemplateNamedSlots, parent?: ComponentInstance<any, any, any>, outerScope?: Scope) 
+  public constructor(component: Component<A, E, S, L>, scope: Scope, slots?: NodeTemplateNamedSlots, parent?: ComponentInstance<any, any, any, any>, outerScope?: Scope) 
   {
     this.component = component;
     this.cache = Object.create(null);

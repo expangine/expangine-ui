@@ -2,7 +2,7 @@ import { ComponentInstance } from '../src';
 import { Exprs, NumberOps } from 'expangine-runtime';
 
 
-export function expectHTML(instance: ComponentInstance<any, any, any>, html: string[], ignoreWhitespace: boolean = true)
+export function expectHTML(instance: ComponentInstance<any, any, any, any>, html: string[], ignoreWhitespace: boolean = true)
 {
   expect(instance.node.element.length).toBe(html.length);
   
