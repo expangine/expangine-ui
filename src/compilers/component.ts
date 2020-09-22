@@ -105,7 +105,7 @@ export const CompilerComponent: NodeCompiler = (template, parentComponent, scope
 
   if (componentBase.ref && parentComponent)
   {
-    parentComponent.scope.get('refs')[componentBase.ref] = localScope.observed;
+    parentComponent.scope.observed.refs[componentBase.ref] = localScope.observed;
   }
   
   return instance;
