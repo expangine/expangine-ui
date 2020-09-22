@@ -14,7 +14,6 @@ export interface ComponentValue<A, E, S extends string, V extends keyof A>
 
 export interface ComponentBase<A, E = never, S extends string = never> 
 {
-  ref?: string;
   name: string;
   collection: string;
   state?: Expression;

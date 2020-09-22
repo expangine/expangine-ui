@@ -12,7 +12,13 @@ export const CompilerComponent: NodeCompiler = (template, parentComponent, scope
   const componentBase = ComponentRegistry[id as string];
   const localScope = new Scope<any>(null, { emit: {}, refs: {} });
   const component = new ComponentInstance(componentBase, localScope, isNamedSlots(childSlots) ? childSlots : undefined, parentComponent, scope);  
-  
+  const addRef = attrs?.ref;
+
+  if (addRef)
+  {
+    delete attrs.ref;
+  }
+
   if (componentBase.attributes)
   {
     for (const attr in componentBase.attributes)
@@ -103,9 +109,9 @@ export const CompilerComponent: NodeCompiler = (template, parentComponent, scope
     componentBase.created(component);
   }
 
-  if (componentBase.ref && parentComponent)
+  if (addRef && parentComponent)
   {
-    parentComponent.scope.observed.refs[componentBase.ref] = localScope.observed;
+    parentComponent.scope.observed.refs[addRef] = localScope.observed;
   }
   
   return instance;
