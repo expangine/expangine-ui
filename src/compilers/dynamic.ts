@@ -1,28 +1,30 @@
 import { NodeCompiler, NodeInstance, changeElements } from '../Node';
 import { compile } from '../compile';
+import { Scope } from '../Scope';
 
 
 export const CompilerDynamic: NodeCompiler = (template, component, scope, parent) =>
 {
   const [tag] = template;
   const instance: NodeInstance = { parent, component, scope, element: [document.createComment('dynamic')] };
-  let lastInstance: NodeInstance;
+  let lastScope: Scope;
 
   scope.watch(tag, (tagValue: any) =>
   {
     template[0] = tagValue;
 
-    if (lastInstance)
+    if (lastScope)
     {
-      lastInstance.scope.destroy();
+      lastScope.destroy();
     }
 
-    const dynamicInstance = compile(template, component, scope, parent);
+    lastScope = scope.createChild();
+
+    const dynamicInstance = compile(template, component, lastScope, parent);
 
     changeElements(instance.element, dynamicInstance.element);
 
-    lastInstance = dynamicInstance;
-  });
+  }, true, true);
 
   return instance;
 };
