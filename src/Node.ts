@@ -115,10 +115,10 @@ export interface NodeChildrenController
   destroy(): void;
 }
 
-export function createChildNodes(children: NodeTemplateChild[], scope: Scope, component: ComponentInstanceAny, instance: NodeInstance): NodeChildrenController
+export function createChildNodes(children: NodeTemplateChild[], scope: Scope, component: ComponentInstanceAny, instance: NodeInstance, sharedScope: boolean = false): NodeChildrenController
 {
   const element: Node[] = [];
-  const scopes: Scope[] = [scope];
+  const scopes: Scope[] = [];
 
   for (const child of children)
   {
@@ -164,13 +164,24 @@ export function createChildNodes(children: NodeTemplateChild[], scope: Scope, co
 
   return {
     element,
-    updateScopes(values: any) {
-      for (const s of scopes) {
+    updateScopes(values: any) 
+    {
+      scope.setMany(values);
+
+      for (const s of scopes) 
+      {
         s.setMany(values);
       }
     },
-    destroy() {
-      for (const s of scopes) {
+    destroy() 
+    {
+      if (!sharedScope) 
+      {
+        scope.destroy();
+      }
+
+      for (const s of scopes) 
+      {
         s.destroy();
       }
     },

@@ -12,7 +12,7 @@ export const CompilerSwitch: NodeCompiler = (template, component, scope, parent)
   const placeholder = [document.createComment(directiveName)];
   const element: Node[] = placeholder.slice();
   const instance: NodeInstance = { parent, component, scope, element };
-  let childScope = scope.createChild();
+  const childScope = scope.createChild();
   
   if (attrs && attrs.cases && attrs.value)
   {
@@ -45,7 +45,6 @@ export const CompilerSwitch: NodeCompiler = (template, component, scope, parent)
           case 'destroy':
             if (lastController) 
             {
-              childScope = scope.createChild();
               lastController.destroy();
               lastController = undefined;
             }
@@ -83,12 +82,11 @@ export const CompilerSwitch: NodeCompiler = (template, component, scope, parent)
         {
           if (lastController)
           {
-            childScope = scope.createChild();
             lastController.destroy();
             lastController = undefined;
           }
 
-          const nextController = createChildNodes(nextTemplate, childScope, component, instance);
+          const nextController = createChildNodes(nextTemplate, childScope, component, instance, true);
 
           changeElements(instance.element, nextController.element);
 

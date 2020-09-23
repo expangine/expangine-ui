@@ -1,5 +1,5 @@
 import { NodeCompiler, NodeInstance, NodeChildrenController, getSlots, createChildNodes, changeElements } from '../Node';
-import { Exprs } from 'expangine-runtime';
+import { Exprs, isArray, isSet, isMap, isObject } from 'expangine-runtime';
 
 
 export const CompilerFor: NodeCompiler = (template, component, scope, parent) => 
@@ -10,11 +10,12 @@ export const CompilerFor: NodeCompiler = (template, component, scope, parent) =>
   const instance: NodeInstance = { parent, component, scope, element };
   const itemTemplate = getSlots(childSlots);
 
-  if (attrs && attrs.items && parent)
+  if (attrs && attrs.items)
   {
     const propItem = attrs.item || 'item';
     const propIndex = attrs.index || 'index';
     const propKey = attrs.key || Exprs.get(propIndex);
+
     const key = scope.eval(propKey);
     const map = new Map<any, NodeChildrenController>();
 
@@ -23,9 +24,8 @@ export const CompilerFor: NodeCompiler = (template, component, scope, parent) =>
       const newChildren: Node[] = [placeholder];
       const keys = new Set();
 
-      for (let itemIndex = 0; itemIndex < items.length; itemIndex++)
+      iterateCollection(items, (item, itemIndex) =>
       {
-        const item = items[itemIndex];
         const itemScopeData = { [propItem]: item, [propIndex]: itemIndex };
         const itemKey = key({ ...itemScopeData });
         let itemController = map.get(itemKey);
@@ -45,17 +45,17 @@ export const CompilerFor: NodeCompiler = (template, component, scope, parent) =>
 
         keys.add(itemKey);
         newChildren.push(...itemController.element);
-      }
+      });
 
       changeElements(instance.element, newChildren);
 
-      map.forEach((entryValue, entryKey) => 
+      map.forEach((itemController, itemIndex) => 
       {
-        if (!keys.has(entryKey)) 
+        if (!keys.has(itemIndex)) 
         {
-          entryValue.destroy();
+          itemController.destroy();
 
-          map.delete(entryKey);
+          map.delete(itemIndex);
         }
       });
     });
@@ -63,3 +63,37 @@ export const CompilerFor: NodeCompiler = (template, component, scope, parent) =>
 
   return instance;
 };
+
+function iterateCollection(collection: any, callback: (item: any, index: any) => void)
+{
+  if (isArray(collection))
+  {
+    for (let index = 0; index < collection.length; index++)
+    {
+      callback(collection[index], index);
+    }
+  }
+  else if (isSet(collection))
+  {
+    let index = 0;
+
+    for (const item of collection)
+    {
+      callback(item, index++);
+    }
+  }
+  else if (isMap(collection))
+  {
+    for (const [key, value] of collection.entries())
+    {
+      callback(value, key);
+    }
+  }
+  else if (isObject(collection))
+  {
+    for (const key in collection)
+    {
+      callback(collection[key], collection);
+    }
+  }
+}

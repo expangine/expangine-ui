@@ -50,8 +50,6 @@ export class ComponentInstance<A, E, S extends string, L, C>
 
   public render(): void 
   {
-    this.scope.destroy();
-    this.scope = new Scope(this.parent?.scope);
     this.cache = Object.create(null);
 
     const rendered = this.component.render(this);
