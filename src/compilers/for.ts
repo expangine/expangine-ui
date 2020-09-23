@@ -1,4 +1,5 @@
 import { NodeCompiler, NodeInstance, NodeChildrenController, getSlots, createChildNodes, changeElements } from '../Node';
+import { Exprs } from 'expangine-runtime';
 
 
 export const CompilerFor: NodeCompiler = (template, component, scope, parent) => 
@@ -13,7 +14,8 @@ export const CompilerFor: NodeCompiler = (template, component, scope, parent) =>
   {
     const propItem = attrs.item || 'item';
     const propIndex = attrs.index || 'index';
-    const key = scope.eval(attrs.key);
+    const propKey = attrs.key || Exprs.get(propIndex);
+    const key = scope.eval(propKey);
     const map = new Map<any, NodeChildrenController>();
 
     scope.watch(attrs.items, (items) =>
@@ -51,7 +53,7 @@ export const CompilerFor: NodeCompiler = (template, component, scope, parent) =>
       {
         if (!keys.has(entryKey)) 
         {
-          entryValue.destroyScopes();
+          entryValue.destroy();
 
           map.delete(entryKey);
         }

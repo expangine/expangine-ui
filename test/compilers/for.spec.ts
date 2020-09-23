@@ -1,5 +1,5 @@
 
-import { mount } from '../../src';
+import { mount, createFor } from '../../src';
 import { expectHTML } from '../helper';
 import { Exprs } from 'expangine-runtime';
 
@@ -11,15 +11,14 @@ describe('for compiler', () =>
   {
     const d = { items: [ 'a', 'b', 'c' ] };
     const i = mount(d, ['div', {}, {}, [
-      [':for', { 
-        items: Exprs.get('items'), 
-        key: Exprs.get('item')
-      }, {}, [
+      createFor(Exprs.get('items'), [
         Exprs.template(' ({index}: {item})', {
           index: Exprs.get('index'),
           item: Exprs.get('item'),
         }),
-      ]]
+      ], { 
+        key: Exprs.get('item')
+      })
     ]]);
 
     expectHTML(i, [
@@ -61,16 +60,15 @@ describe('for compiler', () =>
   {
     const d = { items: [ 'a', 'b', 'c' ] };
     const i = mount(d, ['div', {}, {}, [
-      [':for', { 
-        items: Exprs.get('items'), 
-        key: Exprs.get('x'),
-        item: 'x'
-      }, {}, [
+      createFor(Exprs.get('items'), [
         Exprs.template(' ({index}: {item})', {
           index: Exprs.get('index'),
           item: Exprs.get('x'),
         }),
-      ]]
+      ], { 
+        key: Exprs.get('x'),
+        item: 'x' 
+      })
     ]]);
 
     expectHTML(i, [
@@ -82,16 +80,15 @@ describe('for compiler', () =>
   {
     const d = { items: [ 'a', 'b', 'c' ] };
     const i = mount(d, ['div', {}, {}, [
-      [':for', { 
-        items: Exprs.get('items'), 
-        key: Exprs.get('item'),
-        index: 'x',
-      }, {}, [
+      createFor(Exprs.get('items'), [
         Exprs.template(' ({index}: {item})', {
           index: Exprs.get('x'),
           item: Exprs.get('item'),
         }),
-      ]]
+      ], {
+        key: Exprs.get('item'),
+        index: 'x',
+      }),
     ]]);
 
     expectHTML(i, [

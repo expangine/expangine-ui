@@ -1,5 +1,5 @@
 
-import { mount } from '../src';
+import { mount, createIf } from '../src';
 import { expectHTML } from './helper';
 import { Exprs, ListOps, NumberOps } from 'expangine-runtime';
 
@@ -24,16 +24,16 @@ describe('complex', () =>
         key: Exprs.get('item', 'label')
       }, {}, [
         ['div', { class: 'item' }, {}, [
-          [':if', { condition: Exprs.op(ListOps.contains, {
+          createIf(Exprs.op(ListOps.contains, {
             list: Exprs.get('statuses'),
             item: Exprs.get('item', 'status'),
             isEqual: Exprs.op(NumberOps.isEqual, {
               value: Exprs.get('value'),
               test: Exprs.get('test'),
             }),
-          })}, {}, [
+          }), [
             Exprs.get('item', 'label'),
-          ]]
+          ])
         ]],
       ]]
     ]]);

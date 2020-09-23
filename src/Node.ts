@@ -1,4 +1,4 @@
-import { Expression, isObject, isString, isArray } from 'expangine-runtime';
+import { Expression, isObject, isString, isArray, ExpressionValue } from 'expangine-runtime';
 import { DEFAULT_SLOT } from './constants';
 import { Scope } from './Scope';
 import { ComponentInstanceAny } from './ComponentInstance';
@@ -7,8 +7,8 @@ import { compile } from './compile';
 
 export type Off = () => void;
 export type NodeTemplateTag = string | Expression;
-export type NodeTemplateValues = Record<string, Expression | any>; // when value is Expression, that expression is watched
-export type NodeTemplateEvents = Record<string, Expression | any | ((payload: any) => any)>;
+export type NodeTemplateValues = Record<string, ExpressionValue>; // when value is Expression, that expression is watched
+export type NodeTemplateEvents = Record<string, ExpressionValue | ((payload: any) => any)>;
 export type NodeTemplateChild = string | NodeTemplate | Expression;
 export type NodeTemplateNamedSlots = Record<string, NodeTemplateChild[]>;
 export type NodeTemplateSlots = NodeTemplateChild[] | NodeTemplateNamedSlots;
@@ -44,7 +44,7 @@ export function getSlots(slots?: NodeTemplateSlots, name: string = DEFAULT_SLOT)
     ? []
     : isArray(slots)
       ? slots
-      : isObject(slots) && slots[name]
+      : isObject(slots) && isArray(slots[name])
         ? slots[name]
         : [];
 }
@@ -112,7 +112,7 @@ export interface NodeChildrenController
 {
   element: Node[];
   updateScopes( values: any ): void;
-  destroyScopes(): void;
+  destroy(): void;
 }
 
 export function createChildNodes(children: NodeTemplateChild[], scope: Scope, component: ComponentInstanceAny, instance: NodeInstance): NodeChildrenController
@@ -169,7 +169,7 @@ export function createChildNodes(children: NodeTemplateChild[], scope: Scope, co
         s.setMany(values);
       }
     },
-    destroyScopes() {
+    destroy() {
       for (const s of scopes) {
         s.destroy();
       }

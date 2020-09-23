@@ -1,5 +1,5 @@
 
-import { mount, addComponent } from '../../src';
+import { mount, addComponent, createSlot, createComponent, createFor } from '../../src';
 import { expectHTML, increment } from '../helper';
 import { Exprs, Types, AnyOps, TextOps } from 'expangine-runtime';
 
@@ -8,7 +8,7 @@ describe('component compiler', () =>
 {
 
   // test/button
-  addComponent<{ content: string, name?: string, type?: string }, { click: void }>({ 
+  const TestButton = addComponent<{ content: string, name?: string, type?: string }, { click: void }>({ 
     name: 'button',
     collection: 'test',
     attributes: {
@@ -31,16 +31,19 @@ describe('component compiler', () =>
     }, { 
       click: () => c.trigger('click', null),
     }, [
-      [':slot', {}, {}, [
-        Exprs.get('content'),
-      ]],
+      createSlot({}, [
+        Exprs.get('content')
+      ]),
     ]],
   });
 
   it('simple button', () =>
   {
     const d = { text: 'Action' };
-    const i = mount(d, ['test/button', { content: Exprs.get('text'), type: 'submit' }]);
+    const i = mount(d, createComponent(TestButton, {
+      content: Exprs.get('text'), 
+      type: 'submit',
+    }));
 
     expectHTML(i, [
       '<button type="submit">Action</button>',
@@ -56,9 +59,9 @@ describe('component compiler', () =>
   it('simple button overwrite default slot static', () =>
   {
     const d = {};
-    const i = mount(d, ['test/button', { type: 'submit' }, {}, {
-      default: ['Complete']
-    }]);
+    const i = mount(d, createComponent(TestButton, { type: 'submit' }, {}, {
+      default: ['Complete'],
+    }));
 
     expectHTML(i, [
       '<button type="submit">Complete</button>',
@@ -68,9 +71,9 @@ describe('component compiler', () =>
   it('simple button overwrite default slot reactive', () =>
   {
     const d = { text: 'Action' };
-    const i = mount(d, ['test/button', {}, {}, {
+    const i = mount(d, createComponent(TestButton, {}, {}, {
       default: [Exprs.get('text')]
-    }]);
+    }));
 
     expectHTML(i, [
       '<button>Action</button>',
@@ -86,11 +89,11 @@ describe('component compiler', () =>
   it('simple button emit event', () =>
   {
     const d = { text: 'Action', clicks: 0 };
-    const i = mount(d, ['test/button', {}, { click: increment(['clicks']) }, {
+    const i = mount(d, createComponent(TestButton, {}, { click: increment(['clicks']) }, {
       default: [Exprs.template('Clicks ({clicks})', {
         clicks: Exprs.get('clicks'),
       })],
-    }]);
+    }));
 
     expectHTML(i, [
       '<button>Clicks (0)</button>',
@@ -106,18 +109,21 @@ describe('component compiler', () =>
   });
 
   // test/list
-  addComponent<{ items: any[] }>({ 
+  const TestList = addComponent<{ items: any[] }, never, 'item'>({ 
     name: 'list',
     collection: 'test',
     attributes: {
       items: Types.list(Types.any()),
     },
+    slots: {
+      item: Types.object({ item: Types.any(), index: Types.number() }),
+    },
     render: () => ['ol', {}, {}, [
-      [':for', { items: Exprs.get('items'), key: Exprs.get('index') }, {}, [
+      createFor(Exprs.get('items'), [
         ['li', {}, {}, [
-          [':slot', { name: 'item', scope: { item: Exprs.get('item'), index: Exprs.get('index') } }]
+          createSlot({ name: 'item', scope: { item: Exprs.get('item'), index: Exprs.get('index') } })
         ]]
-      ]],
+      ]),
     ]],
   });
 
@@ -129,7 +135,7 @@ describe('component compiler', () =>
         { done: false, name: 'B' } 
       ]
     };
-    const i = mount(d, ['test/list', { items: Exprs.get('todos') }, {}, {
+    const i = mount(d, createComponent(TestList, { items: Exprs.get('todos') }, {}, {
       item: [Exprs.template('({done}) {name}', {
         name: Exprs.get('item', 'name'),
         done: Exprs.op(AnyOps.ternary, {
@@ -138,7 +144,7 @@ describe('component compiler', () =>
           falsy: Exprs.const(' '),
         }),
       })],
-    }]);
+    }));
 
     expectHTML(i, [
       `<ol>
@@ -174,7 +180,7 @@ describe('component compiler', () =>
   });
 
   // test/state-static
-  addComponent<never, never, never, { count: number }>({ 
+  const TestStateStatic = addComponent<never, never, never, { count: number }>({ 
     name: 'state-static',
     collection: 'test',
     state: {
@@ -189,7 +195,7 @@ describe('component compiler', () =>
 
   it('button with static state', () =>
   {
-    const i = mount({}, ['test/state-static', { ref: 'd' }]);
+    const i = mount({}, createComponent(TestStateStatic, { ref: 'd' }));
 
     expectHTML(i, [
       `<div>0</div>`,
@@ -208,7 +214,7 @@ describe('component compiler', () =>
   });
 
   // test/state-dynamic
-  addComponent<{ text: string }, never, never, never, { upper: number }>({ 
+  const TestStateDynamic = addComponent<{ text: string }, never, never, never, { upper: number }>({ 
     name: 'state-dynamic',
     collection: 'test',
     attributes: {
@@ -224,7 +230,7 @@ describe('component compiler', () =>
 
   it('button with dynamic state', () =>
   {
-    const i = mount({ content: 'Hello' }, ['test/state-dynamic', { ref: 'd', text: Exprs.get('content') }]);
+    const i = mount({ content: 'Hello' }, createComponent(TestStateDynamic, { ref: 'd', text: Exprs.get('content') }));
 
     expectHTML(i, [
       `<div>HELLO</div>`,

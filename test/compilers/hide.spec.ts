@@ -1,5 +1,5 @@
 
-import { mount } from '../../src';
+import { mount, createHide } from '../../src';
 import { expectHTML } from '../helper';
 import { Exprs } from 'expangine-runtime';
 
@@ -10,9 +10,9 @@ describe('hide compiler', () =>
   it('single text node', () =>
   {
     const d = { invisible: false };
-    const i = mount(d, [':hide', { condition: Exprs.get('invisible') }, {}, [
+    const i = mount(d, createHide(Exprs.get('invisible'), [
       ['div', {}, {}, ['Hello World']],
-    ]]);
+    ]));
 
     expectHTML(i, [
       '<div>Hello World</div>'
@@ -28,18 +28,24 @@ describe('hide compiler', () =>
   it('single text node initially invisible', () =>
   {
     const d = { invisible: true };
-    const i = mount(d, [':hide', { condition: Exprs.get('invisible') }, {}, [
+    const i = mount(d, createHide(Exprs.get('invisible'), [
       ['div', {}, {}, ['Hello World']],
-    ]]);
+    ]));
 
     expectHTML(i, [
-      '<div style="display: none;">Hello World</div>'
+      '<!--if-->'
     ]);
 
     i.scope.set('invisible', false);
 
     expectHTML(i, [
-      '<div style="">Hello World</div>'
+      '<div>Hello World</div>'
+    ]);
+
+    i.scope.set('invisible', true);
+
+    expectHTML(i, [
+      '<div style="display: none;">Hello World</div>'
     ]);
   });
 
@@ -47,7 +53,7 @@ describe('hide compiler', () =>
   {
     const d = { invisible: false };
     const i = mount(d, ['div', {}, {}, [
-      [':hide', { condition: Exprs.get('invisible') }, {}, ['Hello', 'World']]
+      createHide(Exprs.get('invisible'), ['Hello', 'World'])
     ]]);
 
     expectHTML(i, [
@@ -57,7 +63,7 @@ describe('hide compiler', () =>
     i.scope.set('invisible', true);
 
     expectHTML(i, [    
-      '<div><!--hide--><!--hide--></div>'
+      '<div><!----><!----></div>'
     ]);
   });
 
@@ -65,17 +71,23 @@ describe('hide compiler', () =>
   {
     const d = { invisible: false };
     const i = mount(d, ['div', {}, {}, [
-      [':hide', { condition: Exprs.get('invisible') }, {}, []]
+      createHide(Exprs.get('invisible'), [])
     ]]);
 
     expectHTML(i, [
-      '<div></div>'
+      '<div><!--if--></div>'
     ]);
 
     i.scope.set('invisible', true);
 
     expectHTML(i, [
-      '<div></div>'
+      '<div><!--if--></div>'
+    ]);
+
+    i.scope.set('invisible', false);
+
+    expectHTML(i, [
+      '<div><!--if--></div>'
     ]);
   });
 
@@ -83,9 +95,9 @@ describe('hide compiler', () =>
   {
     const d = { invisible: false, content: 'Howdy' };
     const i = mount(d, ['div', {}, {}, [
-      [':hide', { condition: Exprs.get('invisible') }, {}, [
+      createHide(Exprs.get('invisible'), [
         Exprs.get('content'),
-      ]]
+      ])
     ]]);
 
     expectHTML(i, [
@@ -101,17 +113,17 @@ describe('hide compiler', () =>
     i.scope.set('invisible', true);
 
     expectHTML(i, [
-      '<div><!--hide--></div>'
+      '<div><!----></div>'
     ]);
   });
 
   it('nested', () =>
   {
     const d = { invisible: false };
-    const i = mount(d, [':hide', { condition: Exprs.get('invisible') }, {}, [
+    const i = mount(d, createHide(Exprs.get('invisible'), [
       ['span', {}, {}, [['p']]],
       ['b']
-    ]]);
+    ]));
 
     expectHTML(i, [
       '<span><p></p></span>',
