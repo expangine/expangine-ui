@@ -10,8 +10,8 @@ export const CompilerSwitch: NodeCompiler = (template, component, scope, parent)
   const [tag, attrs, , childSlots] = template;
   const directiveName = (tag as string).substring(1);
   const placeholder = [document.createComment(directiveName)];
-  const element: Node[] = placeholder.slice();
-  const instance: NodeInstance = { parent, component, scope, element };
+  const elements: Node[] = placeholder.slice();
+  const instance: NodeInstance = { parent, component, scope, elements };
   const childScope = scope.createChild();
   
   if (attrs && attrs.cases && attrs.value)
@@ -26,7 +26,7 @@ export const CompilerSwitch: NodeCompiler = (template, component, scope, parent)
     expr.default(DEFAULT_SLOT);
 
     let lastVisibleSlot: string;
-    let lastController: NodeChildrenController | undefined = undefined;
+    let lastController: NodeChildrenController;
 
     scope.watch(expr, (slotName) =>
     {
@@ -39,7 +39,7 @@ export const CompilerSwitch: NodeCompiler = (template, component, scope, parent)
         switch (mode)
         {
           case 'detach':
-            changeElements(instance.element, placeholder);
+            changeElements(instance.elements, placeholder);
             break;
 
           case 'destroy':
@@ -49,13 +49,13 @@ export const CompilerSwitch: NodeCompiler = (template, component, scope, parent)
               lastController = undefined;
             }
 
-            changeElements(instance.element, placeholder);
+            changeElements(instance.elements, placeholder);
             break;
 
           case 'hide':
             if (lastController) 
             {
-              const hideElements = instance.element.slice();
+              const hideElements = instance.elements.slice();
 
               for (let i = 0; i < hideElements.length; i++) 
               {
@@ -71,7 +71,7 @@ export const CompilerSwitch: NodeCompiler = (template, component, scope, parent)
                 }
               }
 
-              changeElements(instance.element, hideElements);
+              changeElements(instance.elements, hideElements);
             }
             break;
         }
@@ -88,18 +88,18 @@ export const CompilerSwitch: NodeCompiler = (template, component, scope, parent)
 
           const nextController = createChildNodes(nextTemplate, childScope, component, instance, true);
 
-          changeElements(instance.element, nextController.element);
+          changeElements(instance.elements, nextController.elements);
 
           lastController = nextController;
           lastVisibleSlot = slotName;
         }
         else if (mode === 'detach')
         {
-          changeElements(instance.element, lastController.element);
+          changeElements(instance.elements, lastController.elements);
         }
         else
         {
-          const showElements = instance.element.slice();
+          const showElements = instance.elements.slice();
 
           for (let i = 0; i < showElements.length; i++) 
           {
@@ -111,11 +111,11 @@ export const CompilerSwitch: NodeCompiler = (template, component, scope, parent)
             } 
             else 
             {
-              showElements[i] = lastController.element[i];
+              showElements[i] = lastController.elements[i];
             }
           }
 
-          changeElements(instance.element, showElements);
+          changeElements(instance.elements, showElements);
         }
 
         childScope.setEnabled(true);

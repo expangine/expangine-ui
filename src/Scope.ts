@@ -103,7 +103,7 @@ export class Scope<A extends LiveContext = any>
   {
     const cmd = LiveRuntime.eval(expr);
     let first: boolean = true;
-    let last: any = undefined;
+    let last: any;
 
     const watcher = watch(() => {
       const result = cmd(this);

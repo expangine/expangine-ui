@@ -55,7 +55,7 @@ export class ComponentInstance<A, E, S extends string, L, C>
     const rendered = this.component.render(this);
     const node = compile(rendered, this, this.scope);
 
-    changeElements(this.node.element, node.element);
+    changeElements(this.node.elements, node.elements);
     
     this.node = node;
   }

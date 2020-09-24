@@ -9,7 +9,7 @@ export const CompilerSlot: NodeCompiler = (template, component, scope, parent) =
 {
   const [, attrs, , childSlots] = template;
   const element = [document.createComment(COMPILER_SLOT_COMMENT)];
-  const instance: NodeInstance = { parent, component, scope, element };
+  const instance: NodeInstance = { parent, component, scope, elements: element };
 
   if (attrs)
   {
@@ -47,7 +47,7 @@ export const CompilerSlot: NodeCompiler = (template, component, scope, parent) =
     {
       const controller = createChildNodes(slots, slotScope, component, instance);
 
-      instance.element = controller.element;
+      instance.elements = controller.elements;
     }
   }
 

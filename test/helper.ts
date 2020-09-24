@@ -4,11 +4,11 @@ import { Exprs, NumberOps } from 'expangine-runtime';
 
 export function expectHTML(instance: ComponentInstanceAny, html: string[], ignoreWhitespace: boolean = true)
 {
-  expect(instance.node.element.length).toBe(html.length);
+  expect(instance.node.elements.length).toBe(html.length);
   
   for (let i = 0; i < html.length; i++) 
   {
-    const node = instance.node.element[i];
+    const node = instance.node.elements[i];
 
     if (node instanceof HTMLElement) {
       expect(processText(node.outerHTML, ignoreWhitespace)).toBe(processText(html[i], ignoreWhitespace));

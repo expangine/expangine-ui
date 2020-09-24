@@ -99,7 +99,7 @@ describe('component compiler', () =>
       '<button>Clicks (0)</button>',
     ]);
 
-    (i.node.element[0] as HTMLElement).click();
+    (i.node.elements[0] as HTMLElement).click();
 
     expect(i.scope.observed.clicks).toBe(1);
 
@@ -204,7 +204,7 @@ describe('component compiler', () =>
     expect(i.scope.observed.refs.d).toBeDefined();
     expect(i.scope.observed.refs.d.count).toBe(0);
 
-    (i.node.element[0] as HTMLElement).click();
+    (i.node.elements[0] as HTMLElement).click();
 
     expectHTML(i, [
       `<div>1</div>`,

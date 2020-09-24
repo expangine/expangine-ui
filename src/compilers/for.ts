@@ -7,7 +7,7 @@ export const CompilerFor: NodeCompiler = (template, component, scope, parent) =>
   const [, attrs, , childSlots] = template;
   const placeholder = document.createComment('for');
   const element = [placeholder];
-  const instance: NodeInstance = { parent, component, scope, element };
+  const instance: NodeInstance = { parent, component, scope, elements: element };
   const itemTemplate = getSlots(childSlots);
 
   if (attrs && attrs.items)
@@ -44,10 +44,10 @@ export const CompilerFor: NodeCompiler = (template, component, scope, parent) =>
         }
 
         keys.add(itemKey);
-        newChildren.push(...itemController.element);
+        newChildren.push(...itemController.elements);
       });
 
-      changeElements(instance.element, newChildren);
+      changeElements(instance.elements, newChildren);
 
       map.forEach((itemController, itemIndex) => 
       {

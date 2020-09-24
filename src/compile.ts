@@ -45,7 +45,7 @@ export function mount<D>(data: D, template: NodeTemplate, replace?: Node): Compo
 
   if (replace) 
   {
-    changeElements([replace], compiled.element);
+    changeElements([replace], compiled.elements);
   }
 
   instance.node = compiled;

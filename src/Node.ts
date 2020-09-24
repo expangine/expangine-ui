@@ -28,7 +28,7 @@ export interface NodeInstance
   parent?: NodeInstance;
   children?: NodeInstance[];
   component: ComponentInstanceAny;
-  element: Node[];
+  elements: Node[];
   scope: Scope;
 }
 
@@ -55,11 +55,11 @@ export function isNamedSlots(value: any): value is NodeTemplateNamedSlots
   return typeof value === 'object' && !Array.isArray(value);
 }
 
-export function changeElements(target: Node[], element: Node[])
+export function changeElements(target: Node[], elements: Node[])
 {
   if (target.length === 0)
   {
-    target.push(...element);
+    target.push(...elements);
   }
   else
   {
@@ -67,12 +67,12 @@ export function changeElements(target: Node[], element: Node[])
 
     if (parent)
     {
+      const removing: Set<Node> = new Set(target);
       let prev: Node = target[0].previousSibling;
-      let removing: Set<Node> = new Set(target);
 
-      for (let i = 0; i < element.length; i++)
+      for (let i = 0; i < elements.length; i++)
       {
-        const desired = element[i];
+        const desired = elements[i];
         const current = prev
           ? prev.nextSibling
           : target[i];
@@ -104,27 +104,27 @@ export function changeElements(target: Node[], element: Node[])
       }
     }
 
-    target.splice(0, target.length, ...element);
+    target.splice(0, target.length, ...elements);
   }
 }
 
 export interface NodeChildrenController
 {
-  element: Node[];
+  elements: Node[];
   updateScopes( values: any ): void;
   destroy(): void;
 }
 
 export function createChildNodes(children: NodeTemplateChild[], scope: Scope, component: ComponentInstanceAny, instance: NodeInstance, sharedScope: boolean = false): NodeChildrenController
 {
-  const element: Node[] = [];
+  const elements: Node[] = [];
   const scopes: Scope[] = [];
 
   for (const child of children)
   {
     if (isString(child)) 
     {
-      element.push(document.createTextNode(child));
+      elements.push(document.createTextNode(child));
     } 
     else if (Scope.isWatchable(child))
     {
@@ -135,15 +135,15 @@ export function createChildNodes(children: NodeTemplateChild[], scope: Scope, co
         textNode.textContent = text;
       });
 
-      element.push(textNode);
+      elements.push(textNode);
     }
     else 
     {
       const childNode = compile(child, component, scope, instance);
 
-      for (const childElement of childNode.element)
+      for (const childElement of childNode.elements)
       {
-        element.push(childElement);
+        elements.push(childElement);
       }
 
       if (childNode.scope !== scope)
@@ -163,7 +163,7 @@ export function createChildNodes(children: NodeTemplateChild[], scope: Scope, co
   }
 
   return {
-    element,
+    elements,
     updateScopes(values: any) 
     {
       scope.setMany(values);

@@ -6,7 +6,7 @@ import { Scope } from '../Scope';
 export const CompilerDynamic: NodeCompiler = (template, component, scope, parent) =>
 {
   const [tag] = template;
-  const instance: NodeInstance = { parent, component, scope, element: [document.createComment('dynamic')] };
+  const instance: NodeInstance = { parent, component, scope, elements: [document.createComment('dynamic')] };
   let lastScope: Scope;
 
   scope.watch(tag, (tagValue: any) =>
@@ -22,7 +22,7 @@ export const CompilerDynamic: NodeCompiler = (template, component, scope, parent
 
     const dynamicInstance = compile(template, component, lastScope, parent);
 
-    changeElements(instance.element, dynamicInstance.element);
+    changeElements(instance.elements, dynamicInstance.elements);
 
   }, true, true);
 

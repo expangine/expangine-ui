@@ -98,7 +98,7 @@ describe('default compiler', () =>
         count: Exprs.get('count'),
       }),
     ]]);
-    const button = i.node.element[0] as HTMLElement;
+    const button = i.node.elements[0] as HTMLElement;
 
     expectHTML(i, [
       '<button>Clicked 0 times</button>'

@@ -15,7 +15,7 @@ export const CompilerDefault: NodeCompiler = (template, component, scope, parent
 {
   const [tag, attrs, events, childSlots] = template;
   const element = document.createElement(tag as any) as HTMLElement;
-  const instance: NodeInstance = { element: [element], component, scope, parent };
+  const instance: NodeInstance = { elements: [element], component, scope, parent };
 
   if (isObject(attrs)) 
   {
@@ -101,7 +101,7 @@ export const CompilerDefault: NodeCompiler = (template, component, scope, parent
   {
     const childController = createChildNodes(childs, scope, component, instance);
 
-    for (const child of childController.element)
+    for (const child of childController.elements)
     {
       element.appendChild(child);
     }
@@ -115,12 +115,14 @@ const modifierHandlers: Record<string, (el: HTMLElement, ev: Event) => boolean> 
     if (ev.preventDefault) {
       ev.preventDefault();
     }
+
     return true;
   },
   stop (el: HTMLElement, ev: Event): boolean {
     if (ev.stopPropagation) {
       ev.stopPropagation();
     }
+    
     return true;
   },
   self (el: HTMLElement, ev: Event): boolean {

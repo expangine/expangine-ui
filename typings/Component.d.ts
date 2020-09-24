@@ -1,27 +1,33 @@
 import { Type, Expression, ObjectType } from 'expangine-runtime';
 import { ComponentInstance } from './ComponentInstance';
 import { NodeTemplate } from './Node';
-export interface ComponentValue<A, E, S extends string, V extends keyof A> {
+export interface ComponentValue<A, E, S extends string, L, C, V extends keyof A> {
     type: Type;
     default?: Expression;
-    changed?(value: A[V], instance: ComponentInstance<A, E, S>, e: Node[]): void;
-    initial?(value: A[V], instance: ComponentInstance<A, E, S>, e: Node[]): void;
-    update?(value: A[V], instance: ComponentInstance<A, E, S>, e: Node[]): void;
+    changed?(value: A[V], instance: ComponentInstance<A, E, S, L, C>): void;
+    initial?(value: A[V], instance: ComponentInstance<A, E, S, L, C>): void;
+    update?(value: A[V], instance: ComponentInstance<A, E, S, L, C>): void;
 }
-export interface ComponentBase<A, E = never, S extends string = never> {
-    ref?: string;
+export interface ComponentBase<A, E = never, S extends string = never, L = never, C = never> {
     name: string;
     collection: string;
-    state?: Expression;
-    render(instance: ComponentInstance<A, E, S>): NodeTemplate;
-    created?(instance: ComponentInstance<A, E, S>, e: Node[]): void;
-    updated?(instance: ComponentInstance<A, E, S>, e: Node[]): void;
-    destroyed?(instance: ComponentInstance<A, E, S>, e: Node[]): void;
+    render(instance: ComponentInstance<A, E, S, L, C>): NodeTemplate;
+    created?(instance: ComponentInstance<A, E, S, L, C>): void;
+    updated?(instance: ComponentInstance<A, E, S, L, C>): void;
+    destroyed?(instance: ComponentInstance<A, E, S, L, C>): void;
 }
 export declare type IfNever<T, Y, N> = [T] extends [never] ? Y : N;
-export declare type Component<A = never, E = never, S extends string = never> = ComponentBase<A, E, S> & IfNever<A, {}, {
+export declare type Component<A = never, E = never, S extends string = never, L = never, C = never> = ComponentBase<A, E, S, L, C> & IfNever<A, {}, {
     attributes: {
-        [V in keyof A]: ComponentValue<A, E, S, V> | Type;
+        [V in keyof A]: ComponentValue<A, E, S, L, C, V> | Type;
+    };
+}> & IfNever<L, {}, {
+    state: {
+        [V in keyof L]: Expression;
+    };
+}> & IfNever<C, {}, {
+    computed: {
+        [V in keyof C]: Expression;
     };
 }> & IfNever<E, {}, {
     events: {
