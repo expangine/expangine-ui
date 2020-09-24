@@ -7,6 +7,7 @@ export interface ComponentValue<A, E, S extends string, L, C, V extends keyof A>
 {
   type: Type;
   default?: Expression;
+  callable?: ObjectType;
   changed? (value: A[V], instance: ComponentInstance<A, E, S, L, C>): void;
   initial? (value: A[V], instance: ComponentInstance<A, E, S, L, C>): void;
   update? (value: A[V], instance: ComponentInstance<A, E, S, L, C>): void;
@@ -30,5 +31,5 @@ export type Component<A = never, E = never, S extends string = never, L = never,
   IfNever<L, {}, { state: { [V in keyof L]: Expression } }> & 
   IfNever<C, {}, { computed: { [V in keyof C]: Expression } }> & 
   IfNever<E, {}, { events: { [K in keyof E]: Type } }> & 
-  IfNever<S, {}, { slots: { [L in S]: ObjectType } }>
+  IfNever<S, {}, { slots: { [K in S]: ObjectType } }>
 ;

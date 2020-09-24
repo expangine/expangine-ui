@@ -39,7 +39,7 @@ export function mount<D>(data: D, template: NodeTemplate, replace?: Node): Compo
     state: {},
     computed: {},
     render: () => template,
-  }, rootScope);
+  }, {}, rootScope);
 
   const compiled = compile(template, instance, rootScope);
 

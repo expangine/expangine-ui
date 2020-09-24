@@ -3,6 +3,7 @@ import { mount, addComponent, createSlot, createComponent, createFor } from '../
 import { expectHTML, increment } from '../helper';
 import { Exprs, Types, AnyOps, TextOps } from 'expangine-runtime';
 
+// tslint:disable: no-magic-numbers
 
 describe('component compiler', () => 
 {
@@ -250,6 +251,68 @@ describe('component compiler', () =>
     expect(i.scope.observed.refs.d.upper).toBe('WORLD');
   });
 
+  // test/dropdown
+  const TestDropdown = addComponent<{ options: string, value: string, label: string }>({ 
+    name: 'dropdown',
+    collection: 'test',
+    attributes: {
+      options: Types.list(Types.any()),
+      value: {
+        type: Types.text(),
+        callable: Types.object({ option: Types.any() }),
+        default: Exprs.get('option', 'value'),
+      },
+      label: {
+        type: Types.text(),
+        callable: Types.object({ option: Types.any() }),
+        default: Exprs.get('option', 'label'),
+      },
+    },
+    render: (c) => ['select', {}, {}, [
+      createFor(Exprs.get('options'), [
+        ['option', {
+          value: c.call('value', { option: Exprs.get('item') }),
+        }, {}, [
+          c.call('label', { option: Exprs.get('item') }),
+        ]],
+      ]),
+    ]],
+  });
+
+  it('callable arguments', () =>
+  {
+    const d = {
+      answers: [
+        { value: 0, text: 'Zero' },
+        { value: 1, text: 'One' },
+        { value: 2, text: 'Two' },
+      ]
+    };
+    const i = mount(d, createComponent(TestDropdown, { 
+      options: Exprs.get('answers'),
+      label: Exprs.get('option', 'text'),
+    }));
+
+    expectHTML(i, [
+      `<select>
+        <!--for-->
+        <option value="0">Zero</option>
+        <option value="1">One</option>
+        <option value="2">Two</option>
+      </select>`,
+    ]);
+
+    i.scope.observed.answers[2].value = 3;
+
+    expectHTML(i, [
+      `<select>
+        <!--for-->
+        <option value="0">Zero</option>
+        <option value="1">One</option>
+        <option value="3">Two</option>
+      </select>`,
+    ]);
+  });
 
 
 });

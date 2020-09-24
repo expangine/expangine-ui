@@ -4,6 +4,7 @@ import { NodeTemplate } from './Node';
 export interface ComponentValue<A, E, S extends string, L, C, V extends keyof A> {
     type: Type;
     default?: Expression;
+    callable?: ObjectType;
     changed?(value: A[V], instance: ComponentInstance<A, E, S, L, C>): void;
     initial?(value: A[V], instance: ComponentInstance<A, E, S, L, C>): void;
     update?(value: A[V], instance: ComponentInstance<A, E, S, L, C>): void;
@@ -35,6 +36,6 @@ export declare type Component<A = never, E = never, S extends string = never, L 
     };
 }> & IfNever<S, {}, {
     slots: {
-        [L in S]: ObjectType;
+        [K in S]: ObjectType;
     };
 }>;

@@ -11,7 +11,7 @@ export const CompilerComponent: NodeCompiler = (template, parentComponent, scope
   const [id, attrs, events, childSlots] = template;
   const componentBase = ComponentRegistry[id as string];
   const localScope = new Scope<any>(null, { emit: {}, refs: {} });
-  const component = new ComponentInstance(componentBase, localScope, isNamedSlots(childSlots) ? childSlots : undefined, parentComponent, scope);  
+  const component = new ComponentInstance(componentBase, attrs, localScope, isNamedSlots(childSlots) ? childSlots : undefined, parentComponent, scope);  
   const addRef = attrs?.ref;
 
   if (addRef)
@@ -27,6 +27,11 @@ export const CompilerComponent: NodeCompiler = (template, parentComponent, scope
       const attrObject = attrValue instanceof Type
         ? { type: attrValue }
         : attrValue;
+
+      if (attrObject.callable)
+      {
+        continue;
+      }
 
       const attrInput = attrs && attr in attrs ? attrs[attr] : attrObject.default;
 
