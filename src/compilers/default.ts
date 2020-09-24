@@ -1,4 +1,4 @@
-import { isObject, isFunction } from 'expangine-runtime';
+import { isObject, isFunction, isArray } from 'expangine-runtime';
 import { NodeCompiler, NodeInstance, getSlots, createChildNodes } from '../Node';
 import { Scope } from '../Scope';
 
@@ -122,7 +122,7 @@ const modifierHandlers: Record<string, (el: HTMLElement, ev: Event) => boolean> 
     if (ev.stopPropagation) {
       ev.stopPropagation();
     }
-    
+
     return true;
   },
   self (el: HTMLElement, ev: Event): boolean {
@@ -154,6 +154,33 @@ function applyAttribute(e: HTMLElement, attr: string, value: any)
   }
   else
   {
-    e.setAttribute(attr, value);
+    e.setAttribute(attr, convertToString(value, attr.toLowerCase() === 'style'));
   }
+}
+
+function convertToString(x: any, forStyle: boolean = false): string
+{
+  if (isArray(x))
+  {
+    return x.map((y) => convertToString(y)).join(forStyle ? '; ' : ' ');
+  }
+  else if (isObject(x))
+  {
+    const converted = [];
+
+    for (const prop in x)
+    {
+      if (x[prop] || (forStyle && x[prop] === 0))
+      {
+        converted.push(forStyle
+          ? prop + ': ' + convertToString(x[prop])
+          : prop
+        );
+      }
+    }
+
+    return converted.join(forStyle ? '; ' : ' ');
+  }
+  
+  return String(x);
 }

@@ -3,6 +3,7 @@ import { mount } from '../../src';
 import { expectHTML, increment } from '../helper';
 import { Exprs } from 'expangine-runtime';
 
+// tslint:disable: no-magic-numbers
 
 describe('default compiler', () => 
 {
@@ -114,6 +115,46 @@ describe('default compiler', () =>
 
     expectHTML(i, [
       '<button>Clicked 2 times</button>'
+    ]);
+  });
+
+  it('array and object attributes', () =>
+  {
+    const d = { flag: false, pixels: 1 };
+    const i = mount(d, ['div', { 
+      class: Exprs.tuple(
+        'static',
+        Exprs.if(Exprs.get('flag')).than(Exprs.const('flag')).else(Exprs.const('no-flag')),
+        Exprs.object({
+          'obj-flag': Exprs.get('flag'),
+          'obj-static': Exprs.const(true),
+          'obj-hidden': Exprs.const(false),
+        }),
+      ),
+      style: Exprs.object({
+        display: 'none',
+        border: Exprs.tuple(
+          Exprs.template('{pixels}px', { pixels: Exprs.get('pixels') }),
+          'solid',
+          'black'
+        ),
+      })
+    }, {}, []]);
+
+    expectHTML(i, [
+      '<div class="static no-flag obj-static" style="display: none; border: 1px solid black"></div>'
+    ]);
+
+    i.scope.set('flag', true);
+
+    expectHTML(i, [
+      '<div class="static flag obj-flag obj-static" style="display: none; border: 1px solid black"></div>'
+    ]);
+
+    i.scope.set('pixels', 3);
+
+    expectHTML(i, [
+      '<div class="static flag obj-flag obj-static" style="display: none; border: 3px solid black"></div>'
     ]);
   });
 
