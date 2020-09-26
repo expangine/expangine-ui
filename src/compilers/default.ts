@@ -182,5 +182,5 @@ function convertToString(x: any, forStyle: boolean = false): string
     return converted.join(forStyle ? '; ' : ' ');
   }
   
-  return String(x);
+  return x === null || x === undefined ? '' : String(x);
 }
