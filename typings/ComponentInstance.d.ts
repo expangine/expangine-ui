@@ -22,6 +22,7 @@ export declare class ComponentInstance<A, E, S extends string, L, C> {
     update(): void;
     render(): void;
     destroy(): void;
-    getSlotArrayLength(slotName?: string): Expression;
-    getSlotOptions(slotName: string): ComponentSlot | false;
+    getSlotArrayLength(slotName?: S | 'default'): Expression;
+    getSlotOptions(slotName?: S | 'default'): ComponentSlot | false;
+    hasSlot<T, F>(slotName: S | 'default', truthy: T, falsy: F): T | F;
 }

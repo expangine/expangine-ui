@@ -11,6 +11,7 @@ export type ComponentInstanceAny = ComponentInstance<any, any, any, any, any>;
 
 export class ComponentInstance<A, E, S extends string, L, C> 
 {
+
   public component: Component<A, E, S, L, C>;
   public attrs: Partial<Record<keyof A, ExpressionValue>>;
   public cache: Record<string, any>;
@@ -93,7 +94,7 @@ export class ComponentInstance<A, E, S extends string, L, C>
     this.scope.destroy();
   }
 
-  public getSlotArrayLength(slotName: string = DEFAULT_SLOT): Expression
+  public getSlotArrayLength(slotName: S | 'default' = DEFAULT_SLOT): Expression
   {
     const options = this.getSlotOptions(slotName);
 
@@ -126,7 +127,7 @@ export class ComponentInstance<A, E, S extends string, L, C>
     return Exprs.const(0);
   }
 
-  public getSlotOptions(slotName: string): ComponentSlot | false
+  public getSlotOptions(slotName: S | 'default' = 'default'): ComponentSlot | false
   {
     const c = this.component as any as Component<any, any, any, any, any>;
 
@@ -140,6 +141,11 @@ export class ComponentInstance<A, E, S extends string, L, C>
     }
 
     return false;
+  }
+
+  public hasSlot<T, F>(slotName: S | 'default', truthy: T, falsy: F): T | F
+  {
+    return slotName in this.slots ? truthy : falsy;
   }
 
 }
