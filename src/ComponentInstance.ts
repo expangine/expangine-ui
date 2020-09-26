@@ -1,8 +1,10 @@
-import { Exprs, Expression, ExpressionValue, defs } from 'expangine-runtime';
+import { Exprs, Expression, ExpressionValue, defs, isObject, isNumber } from 'expangine-runtime';
 import { Scope } from './Scope';
-import { Component, ComponentValue } from './Component';
+import { Component, ComponentValue, ComponentSlot } from './Component';
 import { NodeInstance, NodeTemplateNamedSlots, Off, changeElements } from './Node';
 import { compile } from './compile';
+import { isComponentSlot } from './compilers/slot';
+import { DEFAULT_SLOT } from './constants';
 
 
 export type ComponentInstanceAny = ComponentInstance<any, any, any, any, any>;
@@ -89,6 +91,55 @@ export class ComponentInstance<A, E, S extends string, L, C>
   public destroy(): void 
   {
     this.scope.destroy();
+  }
+
+  public getSlotArrayLength(slotName: string = DEFAULT_SLOT): Expression
+  {
+    const options = this.getSlotOptions(slotName);
+
+    if (options && options.arrayLength)
+    {
+      return defs.getExpression(options.arrayLength);
+    }
+
+    if (this.slots && this.slots[slotName] && isObject(this.slots[slotName]))
+    {
+      const slots = this.slots[slotName];
+      let maxSlotIndex: number | undefined;
+
+      for (const slotIndex in slots)
+      {
+        const i = parseInt(slotIndex);
+
+        if (isNumber(i) && (maxSlotIndex === undefined || i > maxSlotIndex))
+        {
+          maxSlotIndex = i;
+        }
+      }
+
+      if (maxSlotIndex !== undefined)
+      {
+        return Exprs.const(maxSlotIndex + 1);
+      }
+    }
+
+    return Exprs.const(0);
+  }
+
+  public getSlotOptions(slotName: string): ComponentSlot | false
+  {
+    const c = this.component as any as Component<any, any, any, any, any>;
+
+    if (c.slots)
+    {
+      const slotInput = c.slots[slotName];
+
+      return isComponentSlot(slotInput)
+        ? slotInput
+        : { scope: slotInput };
+    }
+
+    return false;
   }
 
 }

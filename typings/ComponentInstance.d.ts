@@ -1,6 +1,6 @@
 import { Expression, ExpressionValue } from 'expangine-runtime';
 import { Scope } from './Scope';
-import { Component } from './Component';
+import { Component, ComponentSlot } from './Component';
 import { NodeInstance, NodeTemplateNamedSlots, Off } from './Node';
 export declare type ComponentInstanceAny = ComponentInstance<any, any, any, any, any>;
 export declare class ComponentInstance<A, E, S extends string, L, C> {
@@ -22,4 +22,6 @@ export declare class ComponentInstance<A, E, S extends string, L, C> {
     update(): void;
     render(): void;
     destroy(): void;
+    getSlotArrayLength(slotName?: string): Expression;
+    getSlotOptions(slotName: string): ComponentSlot | false;
 }

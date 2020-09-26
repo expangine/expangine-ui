@@ -1,5 +1,5 @@
 import { NodeCompiler, NodeInstance, NodeChildrenController, getSlots, createChildNodes, changeElements } from '../Node';
-import { Exprs, isArray, isSet, isMap, isObject } from 'expangine-runtime';
+import { Exprs, isArray, isSet, isMap, isObject, isNumber } from 'expangine-runtime';
 
 
 export const CompilerFor: NodeCompiler = (template, component, scope, parent) => 
@@ -94,6 +94,13 @@ function iterateCollection(collection: any, callback: (item: any, index: any) =>
     for (const key in collection)
     {
       callback(collection[key], collection);
+    }
+  }
+  else if (isNumber(collection))
+  {
+    for (let i = 0; i < collection; i++)
+    {
+      callback(i, i);
     }
   }
 }

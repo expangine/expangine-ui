@@ -1,4 +1,4 @@
-import { Type, Expression, ObjectType } from 'expangine-runtime';
+import { Type, Expression, ObjectType, ExpressionValue } from 'expangine-runtime';
 import { ComponentInstance } from './ComponentInstance';
 import { NodeTemplate } from './Node';
 
@@ -11,6 +11,14 @@ export interface ComponentValue<A, E, S extends string, L, C, V extends keyof A>
   changed? (value: A[V], instance: ComponentInstance<A, E, S, L, C>): void;
   initial? (value: A[V], instance: ComponentInstance<A, E, S, L, C>): void;
   update? (value: A[V], instance: ComponentInstance<A, E, S, L, C>): void;
+}
+
+export interface ComponentSlot
+{
+  scope: ObjectType;
+  array?: true;
+  arrayLength?: ExpressionValue;
+  arrayIndexAlias?: string;
 }
 
 export interface ComponentBase<A, E = never, S extends string = never, L = never, C = never> 
@@ -31,5 +39,5 @@ export type Component<A = never, E = never, S extends string = never, L = never,
   IfNever<L, {}, { state: { [V in keyof L]: Expression } }> & 
   IfNever<C, {}, { computed: { [V in keyof C]: Expression } }> & 
   IfNever<E, {}, { events: { [K in keyof E]: Type } }> & 
-  IfNever<S, {}, { slots: { [K in S]: ObjectType } }>
+  IfNever<S, {}, { slots: { [K in S]: ComponentSlot | ObjectType } }>
 ;

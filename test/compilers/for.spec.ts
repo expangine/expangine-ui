@@ -3,6 +3,7 @@ import { mount, createFor } from '../../src';
 import { expectHTML } from '../helper';
 import { Exprs } from 'expangine-runtime';
 
+// tslint:disable: no-magic-numbers
 
 describe('for compiler', () => 
 {
@@ -93,6 +94,20 @@ describe('for compiler', () =>
 
     expectHTML(i, [
       '<div><!--for--> (0: a) (1: b) (2: c)</div>'
+    ]);
+  });
+
+  it('number items', () =>
+  {
+    const d = { items: 3 };
+    const i = mount(d, ['div', {}, {}, [
+      createFor(Exprs.get('items'), [
+        Exprs.get('item'),
+      ]),
+    ]]);
+
+    expectHTML(i, [
+      `<div><!--for-->012</div>`
     ]);
   });
 

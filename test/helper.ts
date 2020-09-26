@@ -26,7 +26,7 @@ export function processText(input: string, stripWhitespace: boolean): string
 {
   if (stripWhitespace)
   {
-    input = input.replace(/>\s+</g, '><');
+    input = input.replace(/>\s+/g, '>').replace(/\s+</g, '<');
   }
 
   return input;

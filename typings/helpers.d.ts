@@ -10,7 +10,7 @@ export declare function createHide(condition: ExpressionValue, truthy: NodeTempl
 export declare function createSwitch(value: ExpressionValue, cases: [ExpressionValue, NodeTemplateChild[]][], defaultCase?: ExpressionValue, isEqual?: string): NodeTemplate;
 export declare function createComponent<A, E, S extends string, L, C>(component: Component<A, E, S, L, C>, attributes?: Partial<Record<keyof A, ExpressionValue> & {
     ref: string;
-}>, events?: Partial<Record<keyof E, ExpressionValue>>, slots?: Partial<Record<S | 'default', NodeTemplateChild[]>>): NodeTemplate;
+}>, events?: Partial<Record<keyof E, ExpressionValue>>, slots?: Partial<Record<S | 'default', NodeTemplateChild[] | Record<string, NodeTemplateChild[]>>>): NodeTemplate;
 export declare function createFor(items: Expression, children: NodeTemplateChild[], options?: {
     index?: string;
     item?: string;
@@ -19,4 +19,5 @@ export declare function createFor(items: Expression, children: NodeTemplateChild
 export declare function createSlot(attrs: {
     name?: string;
     scope?: Record<string, ExpressionValue>;
+    slotIndex?: ExpressionValue;
 }, children?: NodeTemplateChild[]): NodeTemplate;

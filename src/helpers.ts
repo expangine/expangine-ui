@@ -51,7 +51,7 @@ export function createComponent<A, E, S extends string, L, C>(
     component: Component<A, E, S, L, C>, 
     attributes: Partial<Record<keyof A, ExpressionValue> & { ref: string }> = {}, 
     events: Partial<Record<keyof E, ExpressionValue>> = {}, 
-    slots: Partial<Record<S | 'default', NodeTemplateChild[]>> = {}
+    slots: Partial<Record<S | 'default', NodeTemplateChild[] | Record<string, NodeTemplateChild[]>>> = {}
 ): NodeTemplate {
     return [`${component.collection}/${component.name}`,
         attributes,
@@ -70,7 +70,7 @@ export function createFor(items: Expression, children: NodeTemplateChild[], opti
     ];
 }
 
-export function createSlot(attrs: { name?: string, scope?: Record<string, ExpressionValue> }, children: NodeTemplateChild[] = []): NodeTemplate
+export function createSlot(attrs: { name?: string, scope?: Record<string, ExpressionValue>, slotIndex?: ExpressionValue }, children: NodeTemplateChild[] = []): NodeTemplate
 {
     return [DIRECTIVE_SLOT, attrs, {}, children];
 }
