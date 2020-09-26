@@ -148,6 +148,8 @@ export class ComponentInstance<A, E, S extends string, L, C>
     return slotName in this.slots ? truthy : falsy;
   }
 
+  public whenSlot(slotName: S | 'default', defaultResult: NodeTemplateChild, getChildren: () => NodeTemplateChild): NodeTemplateChild
+  public whenSlot(slotName: S | 'default', defaultResult: NodeTemplateChild[], getChildren: () => NodeTemplateChild[]): NodeTemplateChild[]
   public whenSlot<R = NodeTemplateChild | NodeTemplateChild[]>(slotName: S | 'default', defaultResult: R, getChildren: () => R): R
   {
     return slotName in this.slots ? getChildren() : defaultResult;
