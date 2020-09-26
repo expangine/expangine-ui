@@ -1,7 +1,7 @@
 import { Exprs, Expression, ExpressionValue, defs, isObject, isNumber } from 'expangine-runtime';
 import { Scope } from './Scope';
 import { Component, ComponentValue, ComponentSlot } from './Component';
-import { NodeInstance, NodeTemplateNamedSlots, Off, changeElements } from './Node';
+import { NodeInstance, NodeTemplateNamedSlots, NodeTemplateChild, Off, changeElements } from './Node';
 import { compile } from './compile';
 import { isComponentSlot } from './compilers/slot';
 import { DEFAULT_SLOT } from './constants';
@@ -146,6 +146,11 @@ export class ComponentInstance<A, E, S extends string, L, C>
   public hasSlot<T, F>(slotName: S | 'default', truthy: T, falsy: F): T | F
   {
     return slotName in this.slots ? truthy : falsy;
+  }
+
+  public whenSlot<R = NodeTemplateChild | NodeTemplateChild[]>(slotName: S | 'default', defaultResult: R, getChildren: () => R): R
+  {
+    return slotName in this.slots ? getChildren() : defaultResult;
   }
 
 }

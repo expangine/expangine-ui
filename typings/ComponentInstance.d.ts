@@ -1,7 +1,7 @@
 import { Expression, ExpressionValue } from 'expangine-runtime';
 import { Scope } from './Scope';
 import { Component, ComponentSlot } from './Component';
-import { NodeInstance, NodeTemplateNamedSlots, Off } from './Node';
+import { NodeInstance, NodeTemplateNamedSlots, NodeTemplateChild, Off } from './Node';
 export declare type ComponentInstanceAny = ComponentInstance<any, any, any, any, any>;
 export declare class ComponentInstance<A, E, S extends string, L, C> {
     component: Component<A, E, S, L, C>;
@@ -25,4 +25,5 @@ export declare class ComponentInstance<A, E, S extends string, L, C> {
     getSlotArrayLength(slotName?: S | 'default'): Expression;
     getSlotOptions(slotName?: S | 'default'): ComponentSlot | false;
     hasSlot<T, F>(slotName: S | 'default', truthy: T, falsy: F): T | F;
+    whenSlot<R = NodeTemplateChild | NodeTemplateChild[]>(slotName: S | 'default', defaultResult: R, getChildren: () => R): R;
 }
