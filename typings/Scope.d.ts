@@ -16,7 +16,7 @@ export declare class Scope<A extends LiveContext = any> {
     set<V extends keyof A>(attr: V, value: A[V], here?: boolean): boolean;
     remove<V extends keyof A>(attr: V): void;
     setMany(values: Partial<A>): void;
-    watch(expr: any, onValue: (value: any) => void, immediate?: boolean, equalityCheck?: boolean): Off;
+    watch(exprValue: any, onValue: (value: any) => void, immediate?: boolean, equalityCheck?: boolean): Off;
     eval(expr: any): ((extra?: any) => any);
     enable(): void;
     disable(): void;

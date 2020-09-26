@@ -99,9 +99,18 @@ export class Scope<A extends LiveContext = any>
     }
   }
 
-  public watch(expr: any, onValue: (value: any) => void, immediate: boolean = true, equalityCheck: boolean = false): Off 
+  public watch(exprValue: any, onValue: (value: any) => void, immediate: boolean = true, equalityCheck: boolean = false): Off 
   {
+    const expr = LiveRuntime.defs.getExpression(exprValue);
     const cmd = LiveRuntime.eval(expr);
+
+    if (!expr.isDynamic())
+    {
+      onValue(cmd(this));
+
+      return () => {};
+    }
+
     let first: boolean = true;
     let last: any;
 
