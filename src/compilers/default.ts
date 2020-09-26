@@ -162,7 +162,7 @@ function convertToString(x: any, forStyle: boolean = false): string
 {
   if (isArray(x))
   {
-    return x.map((y) => convertToString(y)).join(forStyle ? '; ' : ' ');
+    return x.map((y) => convertToString(y)).filter((y) => Boolean(y)).join(forStyle ? '; ' : ' ');
   }
   else if (isObject(x))
   {
