@@ -1,6 +1,6 @@
-import { Expression, DataTypes } from 'expangine-runtime';
+import { Expression, DataTypes, isEmpty } from 'expangine-runtime';
 import { LiveContext, LiveRuntime } from 'expangine-runtime-live';
-import { Watcher, Node as LinkedNode, observe, unobserve, watch } from 'scrute';
+import { Watcher, Node as LinkedNode, observe, unobserve, watch, Observer, PROPERTY, isObserved } from 'scrute';
 import { Off } from './Node';
 
 
@@ -148,7 +148,10 @@ export class Scope<A extends LiveContext = any>
         const extraScope = this.createChild(extra);
         const result = cmd(extraScope);
 
-        extraScope.destroy();
+        if (extraScope.isDestroyable())
+        {
+          extraScope.destroy();
+        }
 
         return result;
       }
@@ -203,12 +206,39 @@ export class Scope<A extends LiveContext = any>
     this.disables = Number.MAX_SAFE_INTEGER;
     this.watchers.forEach((w) => w.off());
     
-    if (this.children) 
+    if (this.children)
     {
       this.children.forEach((c) => c.destroy());
     }
 
     unobserve(this.observed);
+  }
+
+  public isDestroyable()
+  {
+    if (!this.watchers.isEmpty())
+    {
+      return false;
+    }
+
+    if (isObserved(this.observed))
+    {
+      const obs: Observer = this.observed[PROPERTY];
+
+      if (!isEmpty(obs.deps))
+      {
+        return false;
+      }
+    }
+
+    let destroyable = true;
+
+    if (this.children)
+    {
+      this.children.forEach((c) => destroyable = destroyable && c.isDestroyable());
+    }
+
+    return destroyable;
   }
 
   private static registered: boolean = false;

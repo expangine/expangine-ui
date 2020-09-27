@@ -22,6 +22,7 @@ export declare class Scope<A extends LiveContext = any> {
     disable(): void;
     setEnabled(enabled: boolean): void;
     destroy(): void;
+    isDestroyable(): boolean;
     private static registered;
     static register(): void;
     static isWatchable(x: any): x is (Expression | [string, ...any[]]);
