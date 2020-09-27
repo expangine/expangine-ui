@@ -102,7 +102,7 @@ export class Scope<A extends LiveContext = any>
   public watch(exprValue: any, onValue: (value: any) => void, immediate: boolean = true, equalityCheck: boolean = false): Off 
   {
     const expr = LiveRuntime.defs.getExpression(exprValue);
-    const cmd = LiveRuntime.eval(expr);
+    const cmd = LiveRuntime.getCommand(expr);
 
     if (!expr.isDynamic())
     {

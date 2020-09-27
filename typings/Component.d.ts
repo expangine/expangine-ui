@@ -23,24 +23,24 @@ export interface ComponentBase<A, E = never, S extends string = never, L = never
     updated?(instance: ComponentInstance<A, E, S, L, C>): void;
     destroyed?(instance: ComponentInstance<A, E, S, L, C>): void;
 }
-export declare type IfNever<T, Y, N> = [T] extends [never] ? Y : N;
-export declare type Component<A = never, E = never, S extends string = never, L = never, C = never> = ComponentBase<A, E, S, L, C> & IfNever<A, {}, {
+export declare type NeverPartial<T, O> = [T] extends [never] ? Partial<O> : O;
+export declare type Component<A = never, E = never, S extends string = never, L = never, C = never> = ComponentBase<A, E, S, L, C> & NeverPartial<A, {
     attributes: {
         [V in keyof A]: ComponentValue<A, E, S, L, C, V> | Type;
     };
-}> & IfNever<L, {}, {
+}> & NeverPartial<L, {
     state: {
         [V in keyof L]: Expression;
     };
-}> & IfNever<C, {}, {
+}> & NeverPartial<C, {
     computed: {
         [V in keyof C]: Expression;
     };
-}> & IfNever<E, {}, {
+}> & NeverPartial<E, {
     events: {
         [K in keyof E]: Type;
     };
-}> & IfNever<S, {}, {
+}> & NeverPartial<S, {
     slots: {
         [K in S]: ComponentSlot | ObjectType;
     };

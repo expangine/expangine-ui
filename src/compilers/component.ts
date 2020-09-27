@@ -1,4 +1,4 @@
-import { Type, isObject } from 'expangine-runtime';
+import { isObject } from 'expangine-runtime';
 import { NodeCompiler, isNamedSlots } from '../Node';
 import { Scope } from '../Scope';
 import { ComponentRegistry } from '../ComponentRegistry';
@@ -23,17 +23,14 @@ export const CompilerComponent: NodeCompiler = (template, parentComponent, scope
   {
     for (const attr in componentBase.attributes)
     {
-      const attrValue = componentBase.attributes[attr];
-      const attrObject = attrValue instanceof Type
-        ? { type: attrValue }
-        : attrValue;
+      const options = component.getAttributeOptions(attr);
 
-      if (attrObject.callable)
+      if (!options || options.callable)
       {
         continue;
       }
 
-      const attrInput = attrs && attr in attrs ? attrs[attr] : attrObject.default;
+      const attrInput = attrs && attr in attrs ? attrs[attr] : options.default;
 
       if (Scope.isWatchable(attrInput))
       {
@@ -43,17 +40,17 @@ export const CompilerComponent: NodeCompiler = (template, parentComponent, scope
         {
           localScope.set(attr, v, true);
 
-          if (first && attrObject.initial)
+          if (first && options.initial)
           {
-            attrObject.initial(v, component);
+            options.initial(v, component);
           }
-          else if (!first && attrObject.changed)
+          else if (!first && options.changed)
           {
-            attrObject.changed(v, component);
+            options.changed(v, component);
           }
-          if (attrObject.update)
+          if (options.update)
           {
-            attrObject.update(v, component);
+            options.update(v, component);
           }
 
           if (!first && componentBase.updated)

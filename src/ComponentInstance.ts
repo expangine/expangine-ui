@@ -1,7 +1,7 @@
-import { Exprs, Expression, ExpressionValue, defs, isObject, isNumber } from 'expangine-runtime';
+import { Exprs, Expression, ExpressionValue, defs, isObject, isNumber, Type, ObjectType } from 'expangine-runtime';
 import { Scope } from './Scope';
 import { Component, ComponentValue, ComponentSlot } from './Component';
-import { NodeInstance, NodeTemplateNamedSlots, NodeTemplateChild, Off, changeElements } from './Node';
+import { NodeInstance, NodeTemplateNamedSlots, NodeTemplateChild, Off, changeElements, getSlots } from './Node';
 import { compile } from './compile';
 import { isComponentSlot } from './compilers/slot';
 import { DEFAULT_SLOT } from './constants';
@@ -34,9 +34,9 @@ export class ComponentInstance<A, E, S extends string, L, C>
 
   public call<K extends keyof A>(attr: K, args: Record<string, ExpressionValue>): Expression
   {
-    const attrObject = (this.component as any as Component<any, any, any, any, any>).attributes?.[attr];
+    const attrOptions = this.getAttributeOptions(attr);
     const attrValue = this.attrs[attr];
-    const attrExpr = attrValue || (attrObject as ComponentValue<any, any, any, any, any, string>)?.default;
+    const attrExpr = attrValue || (attrOptions ? attrOptions.default : null);
 
     if (attrExpr)
     {
@@ -55,9 +55,9 @@ export class ComponentInstance<A, E, S extends string, L, C>
     return Exprs.noop();
   }
 
-  public trigger<K extends keyof E>(eventName: K, payload: E[K], evalScope: Scope = this.scope): void
+  public trigger<K extends keyof E>(eventName: K, payload: E[K]): void
   {
-    this.scope.observed.emit[eventName] = evalScope.eval(payload)();
+    this.scope.observed.emit[eventName] = payload;
   }
 
   public on<K extends keyof E>(eventName: K, listener: (payload: E[K]) => any): Off 
@@ -92,6 +92,17 @@ export class ComponentInstance<A, E, S extends string, L, C>
   public destroy(): void 
   {
     this.scope.destroy();
+  }
+
+  public getAttributeOptions<K extends keyof A>(attr: K): ComponentValue<A, E, S, L, C, K> | false
+  {
+    const value = this.component.attributes?.[attr];
+
+    return value
+      ? value instanceof Type
+        ? { type: value }
+        : value as ComponentValue<A, E, S, L, C, K>
+      : false;
   }
 
   public getSlotArrayLength(slotName: S | 'default' = DEFAULT_SLOT): Expression
@@ -129,11 +140,9 @@ export class ComponentInstance<A, E, S extends string, L, C>
 
   public getSlotOptions(slotName: S | 'default' = 'default'): ComponentSlot | false
   {
-    const c = this.component as any as Component<any, any, any, any, any>;
-
-    if (c.slots)
+    if (this.component.slots)
     {
-      const slotInput = c.slots[slotName];
+      const slotInput: ComponentSlot | ObjectType = this.component.slots[slotName as S];
 
       return isComponentSlot(slotInput)
         ? slotInput
@@ -141,6 +150,11 @@ export class ComponentInstance<A, E, S extends string, L, C>
     }
 
     return false;
+  }
+
+  public getSlotSize(slotName: S | 'default' = 'default', slotIndex: number = 0): number
+  {
+    return getSlots(this.slots, slotName, slotIndex).length;
   }
 
   public hasSlot<T, F>(slotName: S | 'default', truthy: T, falsy: F): T | F

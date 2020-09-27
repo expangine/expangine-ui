@@ -1,7 +1,7 @@
 
-import { mount, createIf } from '../src';
+import { mount, createIf, addComponent, createSlot, createComponent } from '../src';
 import { expectHTML } from './helper';
-import { Exprs, ListOps, NumberOps } from 'expangine-runtime';
+import { Exprs, ListOps, NumberOps, Types } from 'expangine-runtime';
 
 
 describe('complex', () => 
@@ -71,6 +71,41 @@ describe('complex', () =>
         <div class="item"><!--if--></div>
       </div>`
     ]);
+  });
+
+
+  const TestEmit = addComponent<never, { click: void }>({
+    collection: 'test',
+    name: 'emit',
+    events: {
+      click: Types.null(),
+    },
+    render: (c) =>
+      ['div', {}, { click: () => c.trigger('click', null)}, [
+        createSlot(),
+      ]],
+  })
+
+  it('emit', () =>
+  {
+    const d = {
+      emitted: false,
+    };
+    const i = mount(d, createComponent(TestEmit, {}, { click: Exprs.get('emitted').set(Exprs.true()) }, {
+      default: ['Hello']
+    }));
+
+    const button = i.node.elements[0] as HTMLElement;
+
+    expectHTML(i, [
+      `<div>Hello</div>`
+    ]);
+
+    expect(i.scope.observed.emitted).toBeFalsy();
+
+    button.click();
+
+    expect(i.scope.observed.emitted).toBeTruthy();
   });
 
 });

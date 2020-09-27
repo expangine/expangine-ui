@@ -16,7 +16,7 @@ export declare function createFor(items: Expression, children: NodeTemplateChild
     item?: string;
     key?: ExpressionValue;
 }): NodeTemplate;
-export declare function createSlot(attrs: {
+export declare function createSlot(attrs?: {
     name?: string;
     scope?: Record<string, ExpressionValue>;
     slotIndex?: ExpressionValue;

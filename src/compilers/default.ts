@@ -8,7 +8,6 @@ export interface DefaultEventObject
   stop: boolean;
   prevent: boolean;
   nativeEvent: Event;
-  scope: Scope;
 }
 
 export const CompilerDefault: NodeCompiler = (template, component, scope, parent) => 
@@ -70,7 +69,6 @@ export const CompilerDefault: NodeCompiler = (template, component, scope, parent
 
         const eventObject: DefaultEventObject = {
           nativeEvent,
-          scope,
           stop: false,
           prevent: false,
         };

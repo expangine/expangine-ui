@@ -70,7 +70,7 @@ export function createFor(items: Expression, children: NodeTemplateChild[], opti
     ];
 }
 
-export function createSlot(attrs: { name?: string, scope?: Record<string, ExpressionValue>, slotIndex?: ExpressionValue }, children: NodeTemplateChild[] = []): NodeTemplate
+export function createSlot(attrs: { name?: string, scope?: Record<string, ExpressionValue>, slotIndex?: ExpressionValue } = {}, children: NodeTemplateChild[] = []): NodeTemplate
 {
     return [DIRECTIVE_SLOT, attrs, {}, children];
 }
