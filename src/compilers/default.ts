@@ -143,7 +143,9 @@ function hasModifier(modifiers: string[], modifier: string)
 
 function applyAttribute(e: HTMLElement, attr: string, value: any)
 {
-  if (value === '' || value === null || value === undefined)
+  const valueString = convertToString(value, attr.toLowerCase() === 'style');
+
+  if (valueString === '')
   {
     if (e.hasAttribute(attr))
     {
@@ -152,7 +154,7 @@ function applyAttribute(e: HTMLElement, attr: string, value: any)
   }
   else
   {
-    e.setAttribute(attr, convertToString(value, attr.toLowerCase() === 'style'));
+    e.setAttribute(attr, valueString);
   }
 }
 
@@ -180,5 +182,5 @@ function convertToString(x: any, forStyle: boolean = false): string
     return converted.join(forStyle ? '; ' : ' ');
   }
   
-  return x === null || x === undefined ? '' : String(x);
+  return x === null || x === undefined || x === false ? '' : String(x);
 }
