@@ -38,7 +38,7 @@ export declare type Component<A = never, E = never, S extends string = never, L 
     };
 }> & NeverPartial<E, {
     events: {
-        [K in keyof E]: Type;
+        [K in keyof E]: ObjectType;
     };
 }> & NeverPartial<S, {
     slots: {

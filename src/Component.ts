@@ -38,6 +38,6 @@ export type Component<A = never, E = never, S extends string = never, L = never,
   NeverPartial<A, { attributes: { [V in keyof A]: ComponentValue<A, E, S, L, C, V> | Type } }> & 
   NeverPartial<L, { state: { [V in keyof L]: Expression } }> & 
   NeverPartial<C, { computed: { [V in keyof C]: Expression } }> & 
-  NeverPartial<E, { events: { [K in keyof E]: Type } }> & 
+  NeverPartial<E, { events: { [K in keyof E]: ObjectType } }> & 
   NeverPartial<S, { slots: { [K in S]: ComponentSlot | ObjectType } }>
 ;
