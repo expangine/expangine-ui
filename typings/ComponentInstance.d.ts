@@ -17,12 +17,14 @@ export declare class ComponentInstance<A, E, S extends string, L, C> {
     slots?: NodeTemplateNamedSlots;
     constructor(component: Component<A, E, S, L, C>, attrs: Partial<Record<keyof A, ExpressionValue>>, scope: Scope, slots?: NodeTemplateNamedSlots, parent?: ComponentInstanceAny, outerScope?: Scope);
     call<K extends keyof A>(attr: K, args: Record<string, ExpressionValue>): Expression;
+    callable<K extends keyof A>(attr: K): ((args: any) => {});
     trigger<K extends keyof E>(eventName: K, payload: E[K]): void;
     on<K extends keyof E>(eventName: K, listener: (payload: E[K]) => any): Off;
     update(): void;
     render(): void;
     destroy(): void;
     getAttributeOptions<K extends keyof A>(attr: K): ComponentValue<A, E, S, L, C, K> | false;
+    getAttributeExpression<K extends keyof A>(attr: K): Expression | false;
     getSlotArrayLength(slotName?: S | 'default'): Expression;
     getSlotOptions(slotName?: S | 'default'): ComponentSlot | false;
     getSlotSize(slotName?: S | 'default', slotIndex?: number): number;

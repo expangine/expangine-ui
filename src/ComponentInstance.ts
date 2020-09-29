@@ -34,11 +34,9 @@ export class ComponentInstance<A, E, S extends string, L, C>
 
   public call<K extends keyof A>(attr: K, args: Record<string, ExpressionValue>): Expression
   {
-    const attrOptions = this.getAttributeOptions(attr);
-    const attrValue = this.attrs[attr];
-    const attrExpr = attrValue || (attrOptions ? attrOptions.default : null);
+    const expr = this.getAttributeExpression(attr);
 
-    if (attrExpr)
+    if (expr)
     {
       const def = Exprs.define();
       
@@ -47,12 +45,27 @@ export class ComponentInstance<A, E, S extends string, L, C>
         def.with(arg, defs.getExpression(args[arg]));
       }
 
-      def.run(defs.getExpression(attrExpr));
+      def.run(defs.getExpression(expr));
 
       return def;
     }
 
     return Exprs.noop();
+  }
+
+  public callable<K extends keyof A>(attr: K): ((args: any) => {})
+  {
+    const options = this.getAttributeOptions(attr);
+    const expr = this.getAttributeExpression(attr);
+
+    if (!options || !options.callable || !expr)
+    {
+      throw new Error(`The ${attr} is not callable.`);
+    }
+
+    const props = Object.keys(options.callable.options.props);
+
+    return this.scope.eval(expr, props);
   }
 
   public trigger<K extends keyof E>(eventName: K, payload: E[K]): void
@@ -103,6 +116,17 @@ export class ComponentInstance<A, E, S extends string, L, C>
         ? { type: value }
         : value as ComponentValue<A, E, S, L, C, K>
       : false;
+  }
+
+  public getAttributeExpression<K extends keyof A>(attr: K): Expression | false
+  {
+    const attrOptions = this.getAttributeOptions(attr);
+    
+    return this.attrs[attr] || (
+      attrOptions 
+        ? attrOptions.default 
+        : false
+    );
   }
 
   public getSlotArrayLength(slotName: S | 'default' = DEFAULT_SLOT): Expression

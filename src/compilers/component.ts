@@ -74,7 +74,7 @@ export const CompilerComponent: NodeCompiler = (template, parentComponent, scope
     {
       const stateValue = componentBase.state[stateName];
 
-      localScope.set(stateName, localScope.eval(stateValue)(), true);
+      localScope.set(stateName, localScope.evalNow(stateValue), true);
     }
   }
 
@@ -104,7 +104,8 @@ export const CompilerComponent: NodeCompiler = (template, parentComponent, scope
 
       if (Scope.isWatchable(eventValue)) 
       {
-        const listener = scope.eval(eventValue);
+        const props = Object.keys(componentBase.events[ev].options.props);
+        const listener = scope.eval(eventValue, props);
 
         component.on(ev, listener);
       }

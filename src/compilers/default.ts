@@ -52,7 +52,7 @@ export const CompilerDefault: NodeCompiler = (template, component, scope, parent
 
       const handler = isFunction(eventValue)
         ? eventValue
-        : scope.eval(eventValue);
+        : scope.eval(eventValue, ['nativeEvent', 'stop', 'prevent']);
 
       element.addEventListener(eventName, (nativeEvent) => 
       {

@@ -1,6 +1,6 @@
-import { Expression, DataTypes, isEmpty } from 'expangine-runtime';
+import { Expression, DataTypes, Exprs } from 'expangine-runtime';
 import { LiveContext, LiveRuntime } from 'expangine-runtime-live';
-import { Watcher, Node as LinkedNode, observe, unobserve, watch, Observer, PROPERTY, isObserved } from 'scrute';
+import { Watcher, Node as LinkedNode, observe, unobserve, watch } from 'scrute';
 import { Off } from './Node';
 
 
@@ -60,23 +60,17 @@ export class Scope<A extends LiveContext = any>
 
   public set<V extends keyof A>(attr: V, value: A[V], here: boolean = false): boolean 
   {
-    if (attr in this.observed || here)
+    if (attr in this.observed || 
+       here || 
+       !this.parent ||
+       !this.parent.set(attr, value))
     {
       this.observed[attr] = value;
-    }
-    else if (this.parent)
-    {
-      if (!this.parent.set(attr, value))
-      {
-        this.observed[attr] = value;
-      }
-    }
-    else
-    {
-      return false;
+
+      return true;
     }
 
-    return true;
+    return false;
   }
 
   public remove<V extends keyof A>(attr: V): void 
@@ -137,29 +131,39 @@ export class Scope<A extends LiveContext = any>
     };
   }
 
-  public eval(expr: any): ((extra?: any) => any) 
+  public eval(expr: any): (() => any)
+  public eval<E extends string>(expr: any, extraArgs: E[]): ((extra: Record<E, any>) => any) 
+  public eval(expr: any, extraArgs: string[] = []): ((extra?: any) => any) 
   {
-    const cmd = LiveRuntime.eval(expr);
-
-    return (extra) => 
+    if (extraArgs.length > 0)
     {
-      if (extra)
-      {
-        const extraScope = this.createChild(extra);
-        const result = cmd(extraScope);
+      const extraVar = '__extra__';
+      const extraConst = Exprs.const({});
+      const extraExpr = Exprs.define({
+        [extraVar]: extraConst,
+        ...extraArgs.reduce((out, a) => (out[a] = Exprs.get(extraVar, a), out), {}),
+      }, LiveRuntime.defs.getExpression(expr));
 
-        if (extraScope.isDestroyable())
-        {
-          extraScope.destroy();
-        }
+      const extraCmd = LiveRuntime.eval(extraExpr);
 
-        return result;
-      }
-      else
+      return (extra) =>
       {
-        return cmd(this);
-      }
+        extraConst.value = extra || {};
+
+        return extraCmd(this);
+      };
     }
+    else
+    {
+      const cmd = LiveRuntime.eval(expr);
+
+      return () => cmd(this);
+    }
+  }
+
+  public evalNow(expr: any): any
+  {
+    return this.eval(expr)();
   }
 
   public enable(): void 
@@ -214,33 +218,6 @@ export class Scope<A extends LiveContext = any>
     unobserve(this.observed);
   }
 
-  public isDestroyable()
-  {
-    if (!this.watchers.isEmpty())
-    {
-      return false;
-    }
-
-    if (isObserved(this.observed))
-    {
-      const obs: Observer = this.observed[PROPERTY];
-
-      if (!isEmpty(obs.deps))
-      {
-        return false;
-      }
-    }
-
-    let destroyable = true;
-
-    if (this.children)
-    {
-      this.children.forEach((c) => destroyable = destroyable && c.isDestroyable());
-    }
-
-    return destroyable;
-  }
-
   private static registered: boolean = false;
 
   public static register()
@@ -253,6 +230,15 @@ export class Scope<A extends LiveContext = any>
       LiveRuntime.dataSet = (obj, prop, value) => obj instanceof Scope ? obj.set(prop, value) : dataSet(obj, prop, value);
       LiveRuntime.dataHas = (obj, prop) => obj instanceof Scope ? obj.has(prop) : dataHas(obj, prop);
       LiveRuntime.dataRemove = (obj, prop) => obj instanceof Scope ? obj.remove(prop) : dataRemove(obj, prop);
+
+      DataTypes.addCopier({
+        priority: 12,
+        copy: (x) => {
+          if (x instanceof Event) {
+            return x;
+          }
+        },
+      });
 
       this.registered = true;
     }

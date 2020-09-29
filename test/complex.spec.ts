@@ -78,7 +78,7 @@ describe('complex', () =>
     collection: 'test',
     name: 'emit',
     events: {
-      click: Types.null(),
+      click: Types.object(),
     },
     render: (c) =>
       ['div', {}, { click: () => c.trigger('click', null)}, [

@@ -24,7 +24,7 @@ describe('component compiler', () =>
       },
     },
     events: {
-      click: Types.null(),
+      click: Types.object(),
     },
     render: (c) => ['button', {
       name: Exprs.get('name'),

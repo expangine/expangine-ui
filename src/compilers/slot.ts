@@ -20,7 +20,7 @@ export const CompilerSlot: NodeCompiler = (template, component, scope, parent) =
   {
     const slotName = attrs.name || DEFAULT_SLOT;
     const slotIndex = attrs.slotIndex 
-      ? scope.eval(attrs.slotIndex)() || 0
+      ? scope.evalNow(attrs.slotIndex) || 0
       : 0;
     const componentSlots = getSlots(component.slots, slotName, slotIndex);
     const slotOverride = componentSlots.length > 0;

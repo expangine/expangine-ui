@@ -16,7 +16,7 @@ export const CompilerFor: NodeCompiler = (template, component, scope, parent) =>
     const propIndex = attrs.index || 'index';
     const propKey = attrs.key || Exprs.get(propIndex);
 
-    const key = scope.eval(propKey);
+    const getKey = scope.eval(propKey, [propItem, propIndex]);
     const map = new Map<any, NodeChildrenController>();
 
     scope.watch(attrs.items, (items) =>
@@ -27,7 +27,7 @@ export const CompilerFor: NodeCompiler = (template, component, scope, parent) =>
       iterateCollection(items, (item, itemIndex) =>
       {
         const itemScopeData = { [propItem]: item, [propIndex]: itemIndex };
-        const itemKey = key({ ...itemScopeData });
+        const itemKey = getKey(itemScopeData);
         let itemController = map.get(itemKey);
 
         if (!itemController)

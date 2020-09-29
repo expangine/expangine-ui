@@ -17,12 +17,13 @@ export declare class Scope<A extends LiveContext = any> {
     remove<V extends keyof A>(attr: V): void;
     setMany(values: Partial<A>): void;
     watch(exprValue: any, onValue: (value: any) => void, immediate?: boolean, equalityCheck?: boolean): Off;
-    eval(expr: any): ((extra?: any) => any);
+    eval(expr: any): (() => any);
+    eval<E extends string>(expr: any, extraArgs: E[]): ((extra: Record<E, any>) => any);
+    evalNow(expr: any): any;
     enable(): void;
     disable(): void;
     setEnabled(enabled: boolean): void;
     destroy(): void;
-    isDestroyable(): boolean;
     private static registered;
     static register(): void;
     static isWatchable(x: any): x is (Expression | [string, ...any[]]);
