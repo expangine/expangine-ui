@@ -167,10 +167,12 @@ function getPropertySetter(tag: string, prop: string): ((e: HTMLElement, value: 
   {
     return (e, value) => 
     {
-      if (value === null || value === undefined || value === false || value === '') {
+      const stringValue = convertToString(value, forStyle);
+
+      if (stringValue === '') {
         e.removeAttribute(attribute);
       } else {
-        e.setAttribute(attribute, convertToString(value, forStyle));
+        e.setAttribute(attribute, stringValue);
       }
     };
   }
