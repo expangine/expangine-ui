@@ -142,8 +142,10 @@ function hasModifier(modifiers: string[], modifier: string)
   return exists;
 }
 
-function getPropertySetter(tag: string, prop: string): ((e: HTMLElement, value: any) => void)
+function getPropertySetter(tag: string, propPath: string): ((e: HTMLElement, value: any) => void)
 {
+  const path = propPath.split('_');
+  const prop = path[0];
   const options = getPropertyOptions(prop);
   const { tags, property, attribute, stringify } = options;
   const forStyle = attribute.toLowerCase() === 'style';
@@ -152,16 +154,41 @@ function getPropertySetter(tag: string, prop: string): ((e: HTMLElement, value: 
 
   if (property && useProperty) 
   {
-    return (e, value) => 
+    if (path.length > 1)
     {
-      if (value === null || value === undefined || value === '') {
-        e.removeAttribute(attribute);
-      } else if (stringify) {
-        e[property] = convertToString(value, forStyle);
-      } else {
-        e[property] = value;
-      }
-    };
+      return (e, value) =>
+      {
+        const n = path.length - 1;
+        let curr = e;
+
+        for (let i = 0; i < n; i++) {
+          const node = path[i];
+          if (!curr[node]) {
+            curr[node] = {};
+          }
+          curr = curr[node];
+        }
+        
+        if (value === undefined || value === null) {
+          delete curr[path[n]];
+        } else {
+          curr[path[n]] = value;
+        }
+      };
+    }
+    else
+    {
+      return (e, value) => 
+      {
+        if (value === null || value === undefined || value === '') {
+          e.removeAttribute(attribute);
+        } else if (stringify) {
+          e[property] = convertToString(value, forStyle);
+        } else {
+          e[property] = value;
+        }
+      };
+    }
   } 
   else 
   {
@@ -263,6 +290,7 @@ const tagSupportByProperty: Record<string, string[] | { property?: string, attri
   csp: ['iframe'],
   currentTime: ['audio', 'media'],
   data: ['object'],
+  dataset: [],
   decoding: ['img'],
   default: ['track'],
   defaultMuted: ['audio', 'media'],

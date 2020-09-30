@@ -89,6 +89,19 @@ describe('default compiler', () =>
     ]);
   });
 
+  it('path-property', () =>
+  {
+    const d = {};
+    const i = mount(d, ['div', { dataset_value: 2, style_display: 'none' }, {}, []]);
+    const e = i.node.elements[0] as HTMLElement;
+
+    expectHTML(i, [
+      '<div data-value="2" style="display: none;"></div>'
+    ]);
+
+    expect(e.dataset.value).toEqual('2');
+  });
+
   it('events', () =>
   {
     const d = { count: 0 };
