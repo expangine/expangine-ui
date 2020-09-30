@@ -142,19 +142,19 @@ describe('default compiler', () =>
     }, {}, []]);
 
     expectHTML(i, [
-      '<div class="static no-flag obj-static" style="display: none; border: 1px solid black"></div>'
+      '<div class="static no-flag obj-static" style="display: none; border: 1px solid black;"></div>'
     ]);
 
     i.scope.set('flag', true);
 
     expectHTML(i, [
-      '<div class="static flag obj-flag obj-static" style="display: none; border: 1px solid black"></div>'
+      '<div class="static flag obj-flag obj-static" style="display: none; border: 1px solid black;"></div>'
     ]);
 
     i.scope.set('pixels', 3);
 
     expectHTML(i, [
-      '<div class="static flag obj-flag obj-static" style="display: none; border: 3px solid black"></div>'
+      '<div class="static flag obj-flag obj-static" style="display: none; border: 3px solid black;"></div>'
     ]);
   });
 

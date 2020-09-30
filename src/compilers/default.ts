@@ -21,17 +21,18 @@ export const CompilerDefault: NodeCompiler = (template, component, scope, parent
     for (const attr in attrs) 
     {
       const attrValue = attrs[attr];
+      const apply = getPropertySetter(tag as string, attr);
 
       if (Scope.isWatchable(attrValue)) 
       {
         scope.watch(attrValue, (v) => 
         {
-          applyAttribute(element, attr, v);
+          apply(element, v);
         });
       }
       else 
       {
-        applyAttribute(element, attr, attrValue);
+        apply(element, attrValue);
       }
     }
   }
@@ -141,22 +142,295 @@ function hasModifier(modifiers: string[], modifier: string)
   return exists;
 }
 
-function applyAttribute(e: HTMLElement, attr: string, value: any)
+function getPropertySetter(tag: string, prop: string): ((e: HTMLElement, value: any) => void)
 {
-  const valueString = convertToString(value, attr.toLowerCase() === 'style');
+  const options = getPropertyOptions(prop);
+  const { tags, property, attribute, stringify } = options;
+  const forStyle = attribute.toLowerCase() === 'style';
+  const useProperty = tags !== true && 
+    (tags.length === 0 || tags.includes(tag.toLowerCase()));
 
-  if (valueString === '')
+  if (property && useProperty) 
   {
-    if (e.hasAttribute(attr))
+    return (e, value) => 
     {
-      e.removeAttribute(attr);  
-    }
-  }
-  else
+      if (value === null || value === undefined || value === '') {
+        e.removeAttribute(attribute);
+      } else if (stringify) {
+        e[property] = convertToString(value, forStyle);
+      } else {
+        e[property] = value;
+      }
+    };
+  } 
+  else 
   {
-    e.setAttribute(attr, valueString);
+    return (e, value) => 
+    {
+      if (value === null || value === undefined || value === false || value === '') {
+        e.removeAttribute(attribute);
+      } else if (stringify) {
+        e.setAttribute(attribute, convertToString(value, forStyle));
+      } else {
+        e.setAttribute(attribute, String(value));
+      }
+    };
   }
 }
+
+interface NoProperty
+{
+  property: false;
+  attribute: string;
+  tags: true;
+  stringify: boolean;
+}
+
+interface HasProperty
+{
+  property: string;
+  attribute: string;
+  tags: string[] | true;
+  stringify: boolean;
+}
+
+function getPropertyOptions(prop: string): NoProperty | HasProperty
+{
+  const option = tagSupportByProperty[prop];
+  const attr = propertyToAttribute(prop);
+
+  if (!option) {
+    return {
+      property: false,
+      attribute: attr,
+      tags: true,
+      stringify: false,
+    };
+  }
+
+  return {
+    property: isArray(option) ? prop : option.property || prop,
+    attribute: isArray(option) ? attr : option.attribute || attr,
+    tags: isArray(option) ? option : option.tags || true,
+    stringify: isArray(option) ? false : option.stringify || false,
+  };
+}
+
+function propertyToAttribute(camel: string)
+{
+  return camel.replace(/([A-Z])/g, (x) => '-' + x.toLowerCase());
+}
+
+const tagSupportByProperty: Record<string, string[] | { property?: string, attribute?: string, tags?: string[], stringify?: true }> = {
+  abbr: ['th'],
+  accept: ['input'],
+  acceptCharset: ['form'],
+  accessKey: [],
+  action: ['form'],
+  allow: ['iframe'],
+  allowdirs: ['input'],
+  allowfullscreen: ['iframe'],
+  allowPaymentRequest: ['iframe'],
+  as: ['link'],
+  async: ['script'],
+  autocapitalize: ['textarea'],
+  autocomplete: ['form', 'input', 'textarea'],
+  autofocus: ['button', 'input', 'select', 'textarea'],
+  autoplay: ['audio', 'media'],
+  alt: ['area', 'img'],
+  caption: ['table'],
+  class: {
+    property: 'className',
+    stringify: true,
+  },
+  className: [],
+  charset: ['script'],
+  cite: ['blockquote', 'q', 'cite'],
+  contentEditable: [],
+  coords: ['area'],
+  color: ['basefont'],
+  cols: ['textarea'],
+  colSpan: {
+    tags: ['th', 'td'],
+    attribute: 'colspan',
+  },
+  content: ['meta'],
+  controls: ['audio', 'media'],
+  crossOrigin: {
+    tags: ['img', 'link', 'audio', 'media'],
+    attribute: 'crossorigin',
+  },
+  csp: ['iframe'],
+  currentTime: ['audio', 'media'],
+  data: ['object'],
+  decoding: ['img'],
+  default: ['track'],
+  defaultMuted: ['audio', 'media'],
+  defaultPlaybackRate: ['audio', 'media'],
+  defaultSelected: ['option'],
+  defaultValue: ['input', 'output', 'textarea'],
+  defer: ['script'],
+  dirName: {
+    tags: ['input'],
+    attribute: 'dirname',
+  },
+  dir: [],
+  disabled: ['button', 'fieldset', 'input', 'link', 'optgroup', 'option', 'select', 'style', 'textarea'],
+  disableRemotePlayback: ['audio', 'media'],
+  download: ['a', 'area'],
+  draggable: [],
+  encoding: ['form'],
+  enctype: ['form'],
+  face: ['basefont'],
+  files: ['input'],
+  for: {
+    property: 'htmlFor',
+    tags: ['label'],
+  },
+  form: ['input'],
+  formAction: {
+    tags: ['button', 'input'],
+    attribute: 'formaction',
+  },
+  formEnctype: {
+    tags: ['button', 'input'],
+    attribute: 'formenctype',
+  },
+  formMethod: {
+    tags: ['button', 'input'],
+    attribute: 'formmethod',
+  },
+  formNoValidate: {
+    tags: ['button', 'input'],
+    attribute: 'formnovalidate',
+  },
+  formTarget: {
+    tags: ['button', 'input'],
+    attribute: 'formtarget',
+  },
+  hash: ['a', 'area'],
+  height: ['canvas', 'embed', 'iframe', 'img', 'object', 'video'],
+  hidden: [],
+  host: ['a', 'area'],
+  hostname: ['a', 'area'],
+  href: ['a', 'area', 'base', 'link'],
+  hreflang: ['a', 'area', 'link'],
+  httpEquiv: ['meta'],
+  id: [],
+  inert: [],
+  innerHTML: [],
+  innerText: [],
+  isMap: {
+    tags: ['img'],
+    attribute: 'ismap',
+  },
+  label: ['optgroup', 'track'],
+  lang: [],
+  length: ['select'],
+  loading: ['img'],
+  loop: ['audio', 'media'],
+  kind: ['track'],
+  max: ['input', 'progress'],
+  maxLength: {
+    tags: ['input', 'textarea'],
+    attribute: 'maxlength',
+  },
+  media: ['a', 'area', 'link', 'source', 'style'],
+  mediaGroup: {
+    tags: ['audio', 'media'],
+    attribute: 'mediagroup',
+  },
+  menu: ['button'],
+  method: ['form'],
+  min: ['input'],
+  minLength: {
+    tags: ['input', 'textarea'],
+    attribute: 'minlength'
+  },
+  multiple: ['input', 'select'],
+  muted: ['audio', 'media'],
+  name: ['button', 'fieldset', 'form', 'iframe', 'input', 'map', 'meta', 'object', 'output', 'param', 'select', 'textarea'],
+  noValidate: {
+    tags: ['form'],
+    attribute: 'novalidate',
+  },
+  noModule: ['script'],
+  open: ['dialog'],
+  outerHTML: [],
+  password: ['a', 'area'],
+  pathname: ['a', 'area'],
+  pattern: ['input'],
+  placeholder: ['input', 'textarea'],
+  playbackRate: ['audio', 'media'],
+  port: ['a', 'area'],
+  poster: ['video'],
+  protocol: ['a', 'area'],
+  readOnly: {
+    tags: ['input', 'textarea'],
+    attribute: 'readonly',
+  },
+  referrerPolicy: {
+    tags: ['iframe', 'img', 'link', 'script'],
+    attribute: 'referrerpolicy',
+  },
+  rel: ['a', 'area', 'link'],
+  returnValue: ['dialog'],
+  required: ['input', 'select', 'textarea'],
+  reversed: ['ol'],
+  rows: ['textarea'],
+  rowSpan: {
+    tags: ['td', 'th'],
+    attribute: 'rowspan',
+  },
+  scrollTop: [],
+  sandbox: ['iframe'],
+  scope: ['th'],
+  search: ['area'],
+  select: ['content'],
+  selected: ['option'],
+  selectedIndex: ['select'],
+  selectionStart: ['input', 'textarea'],
+  selectionEnd: ['input', 'textarea'],
+  selectionDirection: ['input', 'textarea'],
+  shape: ['area'],
+  size: ['basefont', 'input', 'select'],
+  sizes: ['img'],
+  src: ['embed', 'iframe', 'img', 'media', 'audio', 'script', 'source', 'track'],
+  srcset: ['img'],
+  srcdoc: ['iframe'],
+  srclang: ['track'],
+  span: ['col', 'colgroup'],
+  start: ['ol'],
+  step: ['input'],
+  style: {
+    tags: [],
+    stringify: true,
+  },
+  tabIndex: {
+    tags: [],
+    attribute: 'tabindex',
+  },
+  target: ['a', 'area', 'base', 'form'],
+  textContent: [],
+  text: ['a', 'option', 'script', 'title'],
+  title: [],
+  type: ['a', 'area', 'button', 'embed', 'input', 'link', 'ol', 'object', 'script', 'source', 'style'],
+  typeMustMatch: {
+    tags: ['object'],
+    attribute: 'typemustmatch',
+  },
+  useMap: {
+    tags: ['img', 'object'],
+    attribute: 'usemap',
+  },
+  username: ['a', 'area'],
+  volume: ['audio', 'media'],
+  validationMessage: ['fieldset'],
+  validity: ['fieldset', 'input'],
+  value: ['button', 'data', 'input', 'li', 'option', 'output', 'param', 'progress', 'select', 'textarea'],
+  width: ['canvas', 'embed', 'iframe', 'img', 'object', 'video'],
+  wrap: ['textarea'],
+};
 
 function convertToString(x: any, forStyle: boolean = false): string
 {
