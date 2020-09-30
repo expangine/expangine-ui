@@ -169,10 +169,8 @@ function getPropertySetter(tag: string, prop: string): ((e: HTMLElement, value: 
     {
       if (value === null || value === undefined || value === false || value === '') {
         e.removeAttribute(attribute);
-      } else if (stringify) {
-        e.setAttribute(attribute, convertToString(value, forStyle));
       } else {
-        e.setAttribute(attribute, String(value));
+        e.setAttribute(attribute, convertToString(value, forStyle));
       }
     };
   }
