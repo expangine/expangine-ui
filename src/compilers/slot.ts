@@ -72,7 +72,7 @@ export const CompilerSlot: NodeCompiler = (template, component, scope, parent) =
   return instance;
 };
 
-export function isComponentSlot(x: any): x is ComponentSlot
+export function isComponentSlot<A>(x: any): x is ComponentSlot<A>
 {
   return isObject(x) && x.scope instanceof Type;
 }

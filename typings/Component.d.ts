@@ -1,16 +1,19 @@
 import { Type, Expression, ObjectType, ExpressionValue } from 'expangine-runtime';
 import { ComponentInstance } from './ComponentInstance';
 import { NodeTemplate } from './Node';
+export declare type TypeProvider<A, T extends Type = Type> = Type | ((attrs: {
+    [K in keyof A]?: Type;
+}) => T);
 export interface ComponentValue<A, E, S extends string, L, C, V extends keyof A> {
-    type: Type;
+    type: TypeProvider<A>;
     default?: Expression;
     callable?: ObjectType;
     changed?(value: A[V], instance: ComponentInstance<A, E, S, L, C>): void;
     initial?(value: A[V], instance: ComponentInstance<A, E, S, L, C>): void;
     update?(value: A[V], instance: ComponentInstance<A, E, S, L, C>): void;
 }
-export interface ComponentSlot {
-    scope: ObjectType;
+export interface ComponentSlot<A> {
+    scope: TypeProvider<A, ObjectType>;
     array?: true;
     arrayLength?: ExpressionValue;
     arrayIndexAlias?: string;
@@ -26,7 +29,7 @@ export interface ComponentBase<A, E = never, S extends string = never, L = never
 export declare type NeverPartial<T, O> = [T] extends [never] ? Partial<O> : O;
 export declare type Component<A = never, E = never, S extends string = never, L = never, C = never> = ComponentBase<A, E, S, L, C> & NeverPartial<A, {
     attributes: {
-        [V in keyof A]: ComponentValue<A, E, S, L, C, V> | Type;
+        [V in keyof A]: ComponentValue<A, E, S, L, C, V> | TypeProvider<A>;
     };
 }> & NeverPartial<L, {
     state: {
@@ -38,10 +41,10 @@ export declare type Component<A = never, E = never, S extends string = never, L 
     };
 }> & NeverPartial<E, {
     events: {
-        [K in keyof E]: ObjectType;
+        [K in keyof E]: TypeProvider<A, ObjectType>;
     };
 }> & NeverPartial<S, {
     slots: {
-        [K in S]: ComponentSlot | ObjectType;
+        [K in S]: ComponentSlot<A> | TypeProvider<A, ObjectType>;
     };
 }>;

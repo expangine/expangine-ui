@@ -1,6 +1,6 @@
 import { Exprs, Expression, ExpressionValue, defs, isObject, isNumber, Type, ObjectType } from 'expangine-runtime';
 import { Scope } from './Scope';
-import { Component, ComponentValue, ComponentSlot } from './Component';
+import { Component, ComponentValue, ComponentSlot, TypeProvider } from './Component';
 import { NodeInstance, NodeTemplateNamedSlots, NodeTemplateChild, Off, changeElements, getSlots } from './Node';
 import { compile } from './compile';
 import { isComponentSlot } from './compilers/slot';
@@ -162,13 +162,13 @@ export class ComponentInstance<A, E, S extends string, L, C>
     return Exprs.const(0);
   }
 
-  public getSlotOptions(slotName: S | 'default' = 'default'): ComponentSlot | false
+  public getSlotOptions(slotName: S | 'default' = 'default'): ComponentSlot<A> | false
   {
     if (this.component.slots)
     {
-      const slotInput: ComponentSlot | ObjectType = this.component.slots[slotName as S];
+      const slotInput: ComponentSlot<A> | TypeProvider<A, ObjectType> = this.component.slots[slotName as S];
 
-      return isComponentSlot(slotInput)
+      return isComponentSlot<A>(slotInput)
         ? slotInput
         : { scope: slotInput };
     }

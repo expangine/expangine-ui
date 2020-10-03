@@ -26,7 +26,7 @@ export declare class ComponentInstance<A, E, S extends string, L, C> {
     getAttributeOptions<K extends keyof A>(attr: K): ComponentValue<A, E, S, L, C, K> | false;
     getAttributeExpression<K extends keyof A>(attr: K): Expression | false;
     getSlotArrayLength(slotName?: S | 'default'): Expression;
-    getSlotOptions(slotName?: S | 'default'): ComponentSlot | false;
+    getSlotOptions(slotName?: S | 'default'): ComponentSlot<A> | false;
     getSlotSize(slotName?: S | 'default', slotIndex?: number): number;
     hasSlot<T, F>(slotName: S | 'default', truthy: T, falsy: F): T | F;
     whenSlot(slotName: S | 'default', getMissing: () => NodeTemplateChild, getChildren: () => NodeTemplateChild): NodeTemplateChild;
