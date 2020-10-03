@@ -10,6 +10,7 @@ export interface ComponentValue<A, E, S extends string, L, C, V extends keyof A>
   type: TypeProvider<A>;
   default?: Expression;
   callable?: TypeProvider<A, ObjectType>;
+  required?: boolean;
   changed? (value: A[V], instance: ComponentInstance<A, E, S, L, C>): void;
   initial? (value: A[V], instance: ComponentInstance<A, E, S, L, C>): void;
   update? (value: A[V], instance: ComponentInstance<A, E, S, L, C>): void;
