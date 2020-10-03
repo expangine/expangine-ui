@@ -1,4 +1,4 @@
-import { Exprs, Expression, ExpressionValue, defs, isObject, isNumber, Type, ObjectType } from 'expangine-runtime';
+import { Exprs, Expression, ExpressionValue, defs, isObject, isNumber, Type, ObjectType, isFunction } from 'expangine-runtime';
 import { Scope } from './Scope';
 import { Component, ComponentValue, ComponentSlot, TypeProvider } from './Component';
 import { NodeInstance, NodeTemplateNamedSlots, NodeTemplateChild, Off, changeElements, getSlots } from './Node';
@@ -63,7 +63,10 @@ export class ComponentInstance<A, E, S extends string, L, C>
       throw new Error(`The ${attr} is not callable.`);
     }
 
-    const props = Object.keys(options.callable.options.props);
+    const propTypes = isFunction(options.callable)
+      ? options.callable({})
+      : options.callable;
+    const props = Object.keys(propTypes.options.props);
 
     return this.scope.eval(expr, props);
   }

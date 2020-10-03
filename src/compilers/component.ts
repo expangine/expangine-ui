@@ -1,4 +1,4 @@
-import { isObject, TypeMap, isFunction } from 'expangine-runtime';
+import { isObject, isFunction } from 'expangine-runtime';
 import { NodeCompiler, isNamedSlots } from '../Node';
 import { Scope } from '../Scope';
 import { ComponentRegistry } from '../ComponentRegistry';
@@ -13,7 +13,6 @@ export const CompilerComponent: NodeCompiler = (template, parentComponent, scope
   const localScope = new Scope<any>(null, { emit: {}, refs: {} });
   const component = new ComponentInstance(componentBase, attrs, localScope, isNamedSlots(childSlots) ? childSlots : undefined, parentComponent, scope);  
   const addRef = attrs?.ref;
-  const types: TypeMap = {};
 
   if (addRef)
   {
@@ -26,16 +25,7 @@ export const CompilerComponent: NodeCompiler = (template, parentComponent, scope
     {
       const options = component.getAttributeOptions(attr);
 
-      if (!options)
-      {
-        continue;
-      }
-
-      types[attr] = isFunction(options.type)
-        ? options.type(types)
-        : options.type;
-
-      if (options.callable)
+      if (!options || options.callable)
       {
         continue;
       }
@@ -116,7 +106,7 @@ export const CompilerComponent: NodeCompiler = (template, parentComponent, scope
       {
         const eventTypeInput = componentBase.events[ev];
         const eventType = isFunction(eventTypeInput)
-          ? eventTypeInput(types)
+          ? eventTypeInput({})
           : eventTypeInput;
 
         const props = Object.keys(eventType.options.props);
