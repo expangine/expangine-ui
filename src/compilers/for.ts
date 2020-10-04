@@ -21,7 +21,7 @@ export const CompilerFor: NodeCompiler = (template, component, scope, parent) =>
 
     scope.watch(attrs.items, (items) =>
     {
-      const newChildren: Node[] = [placeholder];
+      const newChildren: Node[] = [];
       const keys = new Set();
 
       iterateCollection(items, (item, itemIndex) =>
@@ -46,6 +46,11 @@ export const CompilerFor: NodeCompiler = (template, component, scope, parent) =>
         keys.add(itemKey);
         newChildren.push(...itemController.elements);
       });
+
+      if (newChildren.length === 0)
+      {
+        newChildren.push(placeholder);
+      }
 
       changeElements(instance.elements, newChildren);
 

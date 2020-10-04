@@ -40,7 +40,6 @@ describe('complex', () =>
 
     expectHTML(i, [
       `<div>
-        <!--for-->
         <div class="item">A</div>
         <div class="item">B</div>
         <div class="item">C</div>
@@ -52,7 +51,6 @@ describe('complex', () =>
 
     expectHTML(i, [
       `<div>
-        <!--for-->
         <div class="item">A</div>
         <div class="item"><!--if--></div>
         <div class="item">C</div>
@@ -64,7 +62,6 @@ describe('complex', () =>
 
     expectHTML(i, [
       `<div>
-        <!--for-->
         <div class="item"><!--if--></div>
         <div class="item">B</div>
         <div class="item"><!--if--></div>

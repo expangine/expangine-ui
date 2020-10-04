@@ -23,37 +23,37 @@ describe('for compiler', () =>
     ]]);
 
     expectHTML(i, [
-      '<div><!--for--> (0: a) (1: b) (2: c)</div>'
+      '<div> (0: a) (1: b) (2: c)</div>'
     ]);
 
     i.scope.observed.items.push('d');
 
     expectHTML(i, [
-      '<div><!--for--> (0: a) (1: b) (2: c) (3: d)</div>'
+      '<div> (0: a) (1: b) (2: c) (3: d)</div>'
     ]);
 
     i.scope.observed.items.splice(1, 1);
 
     expectHTML(i, [
-      '<div><!--for--> (0: a) (1: c) (2: d)</div>'
+      '<div> (0: a) (1: c) (2: d)</div>'
     ]);
 
     i.scope.observed.items[0] = 'aaa';
 
     expectHTML(i, [
-      '<div><!--for--> (0: aaa) (1: c) (2: d)</div>'
+      '<div> (0: aaa) (1: c) (2: d)</div>'
     ]);
 
     i.scope.observed.items = ['b', 'a', 'd'];
 
     expectHTML(i, [
-      '<div><!--for--> (0: b) (1: a) (2: d)</div>'
+      '<div> (0: b) (1: a) (2: d)</div>'
     ]);
 
     i.scope.observed.items.splice(0, 3, 'e', 'f', 'g');
 
     expectHTML(i, [
-      '<div><!--for--> (0: e) (1: f) (2: g)</div>'
+      '<div> (0: e) (1: f) (2: g)</div>'
     ]);
   });
 
@@ -73,7 +73,7 @@ describe('for compiler', () =>
     ]]);
 
     expectHTML(i, [
-      '<div><!--for--> (0: a) (1: b) (2: c)</div>'
+      '<div> (0: a) (1: b) (2: c)</div>'
     ]);
   });
 
@@ -93,7 +93,7 @@ describe('for compiler', () =>
     ]]);
 
     expectHTML(i, [
-      '<div><!--for--> (0: a) (1: b) (2: c)</div>'
+      '<div> (0: a) (1: b) (2: c)</div>'
     ]);
   });
 
@@ -107,7 +107,7 @@ describe('for compiler', () =>
     ]]);
 
     expectHTML(i, [
-      `<div><!--for-->012</div>`
+      `<div>012</div>`
     ]);
   });
 

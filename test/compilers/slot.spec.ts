@@ -48,7 +48,6 @@ describe('slot compiler', () =>
 
     expectHTML(i, [
       `<div class="columns">
-        <!--for-->
         <div class="column">
          <div>Even</div>
         </div>
@@ -62,7 +61,6 @@ describe('slot compiler', () =>
 
     expectHTML(i, [
       `<div class="columns">
-        <!--for-->
         <div class="column">
          <div>Odd</div>
         </div>
@@ -112,7 +110,6 @@ describe('slot compiler', () =>
 
     expectHTML(i, [
       `<div class="columns">
-        <!--for-->
         <div class="column">a</div>
         <div class="column">b</div>
       </div>`,
@@ -122,7 +119,6 @@ describe('slot compiler', () =>
 
     expectHTML(i, [
       `<div class="columns">
-        <!--for-->
         <div class="column">a</div>
         <div class="column">b</div>
         <div class="column">c</div>
@@ -157,7 +153,6 @@ describe('slot compiler', () =>
 
     expectHTML(i, [
       `<div class="columns">
-        <!--for-->
         <div class="column">a</div>
         <div class="column">b</div>
         <div class="column"></div>

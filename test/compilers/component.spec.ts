@@ -149,7 +149,6 @@ describe('component compiler', () =>
 
     expectHTML(i, [
       `<ol>
-        <!--for-->
         <li>(x) A</li>
         <li>( ) B</li>
       </ol>`,
@@ -161,7 +160,6 @@ describe('component compiler', () =>
 
     expectHTML(i, [
       `<ol>
-        <!--for-->
         <li>(x) A</li>
         <li>( ) B</li>
         <li>( ) C</li>
@@ -172,7 +170,6 @@ describe('component compiler', () =>
 
     expectHTML(i, [
       `<ol>
-        <!--for-->
         <li>(x) A</li>
         <li>(x) B</li>
         <li>( ) C</li>
@@ -295,7 +292,6 @@ describe('component compiler', () =>
 
     expectHTML(i, [
       `<select>
-        <!--for-->
         <option value="0">Zero</option>
         <option value="1">One</option>
         <option value="2">Two</option>
@@ -306,7 +302,6 @@ describe('component compiler', () =>
 
     expectHTML(i, [
       `<select>
-        <!--for-->
         <option value="0">Zero</option>
         <option value="1">One</option>
         <option value="3">Two</option>
