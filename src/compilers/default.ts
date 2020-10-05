@@ -74,7 +74,7 @@ export const CompilerDefault: NodeCompiler = (template, component, scope, parent
           prevent: false,
         };
 
-        if (handler(eventObject) === false) 
+        if (handler(eventObject, scope) === false) 
         {
           return false;
         }
