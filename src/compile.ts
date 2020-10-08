@@ -1,7 +1,7 @@
 
 import { isString } from 'expangine-runtime';
 import { ComponentRegistry } from './ComponentRegistry';
-import { NodeCompiler, NodeTemplate, NodeInstance, changeElements } from './Node';
+import { NodeCompiler, NodeTemplate, NodeInstance, changeElements, NodeTemplateTag } from './Node';
 import { Scope } from './Scope';
 import { ComponentInstance, ComponentInstanceAny } from './ComponentInstance';
 import { COMPILER_COMPONENT, COMPILER_DEFAULT, COMPILER_DYNAMIC } from './constants';
@@ -10,15 +10,20 @@ import { compilers } from './compilers';
 export function getCompiler(template: NodeTemplate): NodeCompiler  
 {
   const [tag] = template;
-  const key = isString(tag) 
+  const key = getCompilerName(tag);
+  
+  return compilers[key];
+}
+
+export function getCompilerName(tag: NodeTemplateTag)
+{
+  return isString(tag) 
     ? tag in compilers
       ? tag
       : tag in ComponentRegistry
         ? COMPILER_COMPONENT
         : COMPILER_DEFAULT
     : COMPILER_DYNAMIC;
-
-  return compilers[key];
 }
 
 export function compile(template: NodeTemplate, component: ComponentInstanceAny, scope: Scope, parent?: NodeInstance): NodeInstance
