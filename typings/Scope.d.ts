@@ -17,6 +17,7 @@ export declare class Scope<A extends LiveContext = any> {
     remove<V extends keyof A>(attr: V): void;
     setMany(values: Partial<A>): void;
     watch(exprValue: any, onValue: (value: any) => void, immediate?: boolean, equalityCheck?: boolean): Off;
+    private static extraCount;
     eval(expr: any): (() => any);
     eval<E extends string>(expr: any, extraArgs: E[]): ((extra: Record<E, any>) => any);
     evalNow(expr: any): any;

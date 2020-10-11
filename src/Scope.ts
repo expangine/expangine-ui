@@ -131,13 +131,15 @@ export class Scope<A extends LiveContext = any>
     };
   }
 
+  private static extraCount: number = 0;
+
   public eval(expr: any): (() => any)
   public eval<E extends string>(expr: any, extraArgs: E[]): ((extra: Record<E, any>) => any) 
   public eval(expr: any, extraArgs: string[] = []): ((extra?: any) => any) 
   {
     if (extraArgs.length > 0)
     {
-      const extraVar = '__extra__';
+      const extraVar = '$' + ++Scope.extraCount;
       const extraConst = Exprs.const({});
       const extraExpr = Exprs.define({
         [extraVar]: extraConst,
