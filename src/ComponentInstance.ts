@@ -81,7 +81,9 @@ export class ComponentInstance<A, E, S extends string, L, C>
     return this.scope.watch(
       Exprs.get('emit', eventName),
       listener,
-      false
+      false,
+      false,
+      true
     );
   }
 

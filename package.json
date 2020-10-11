@@ -53,7 +53,7 @@
   "dependencies": {
     "expangine-runtime": "git+https://github.com/expangine/expangine-runtime.git#master",
     "expangine-runtime-live": "git+https://github.com/expangine/expangine-runtime-live.git#master",
-    "scrute": "0.1.1"
+    "scrute": "0.2.0"
   },
   "devDependencies": {
     "@types/jest": "24.0.11",

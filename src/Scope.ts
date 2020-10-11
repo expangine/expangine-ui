@@ -93,7 +93,7 @@ export class Scope<A extends LiveContext = any>
     }
   }
 
-  public watch(exprValue: any, onValue: (value: any) => void, immediate: boolean = true, equalityCheck: boolean = false): Off 
+  public watch(exprValue: any, onValue: (value: any) => void, immediate: boolean = true, equalityCheck: boolean = false, async: boolean = false): Off 
   {
     const expr = LiveRuntime.defs.getExpression(exprValue);
     const cmd = LiveRuntime.getCommand(expr);
@@ -108,9 +108,7 @@ export class Scope<A extends LiveContext = any>
     let first: boolean = true;
     let last: any;
 
-    const watcher = watch(() => {
-      const result = cmd(this);
-
+    const handleResult = (result: any) => {
       if (immediate || !first) {
         if (first || (!equalityCheck || !DataTypes.equals(last, result))) {
           onValue(result);
@@ -119,6 +117,20 @@ export class Scope<A extends LiveContext = any>
 
       last = equalityCheck ? DataTypes.copy(result) : result;
       first = false;
+    };
+
+    const watcher = watch(() => {
+      const result = cmd(this);
+
+      if (!async) {
+        handleResult( result );
+      }
+    }, {
+      onResult: ({ result }) => {
+        if (async) {
+          handleResult( result );
+        }
+      },
     });
 
     const node = new LinkedNode(watcher);
