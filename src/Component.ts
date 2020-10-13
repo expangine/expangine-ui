@@ -19,6 +19,7 @@ export interface ComponentValue<A, E, S extends string, L, C, V extends keyof A>
 export interface ComponentSlot<A>
 {
   scope: TypeProvider<A, ObjectType>;
+  required?: boolean;
   only?: string[];
   array?: true;
   arrayLength?: ExpressionValue;
