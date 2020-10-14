@@ -129,7 +129,9 @@ export class ComponentInstance<A, E, S extends string, L, C>
     
     return this.attrs[attr] || (
       attrOptions 
-        ? attrOptions.default 
+        ? isFunction(attrOptions.default)
+          ? attrOptions.default(this)
+          : attrOptions.default
         : false
     );
   }
