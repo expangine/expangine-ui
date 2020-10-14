@@ -30,7 +30,11 @@ export const CompilerComponent: NodeCompiler = (template, parentComponent, scope
         continue;
       }
 
-      const attrInput = attrs && attr in attrs ? attrs[attr] : options.default;
+      const attrInput = attrs && attr in attrs 
+        ? attrs[attr] 
+        : isFunction(options.default)
+          ? options.default(component)
+          : options.default;
 
       if (Scope.isWatchable(attrInput))
       {
@@ -72,7 +76,10 @@ export const CompilerComponent: NodeCompiler = (template, parentComponent, scope
   {
     for (const stateName in componentBase.state)
     {
-      const stateValue = componentBase.state[stateName];
+      const stateProvider = componentBase.state[stateName];
+      const stateValue = isFunction(stateProvider)
+        ? stateProvider(component)
+        : stateProvider;
 
       localScope.set(stateName, localScope.evalNow(stateValue), true);
     }
@@ -82,7 +89,10 @@ export const CompilerComponent: NodeCompiler = (template, parentComponent, scope
   {
     for (const computedName in componentBase.computed)
     {
-      const computedValue = componentBase.computed[computedName];
+      const computedProvider = componentBase.computed[computedName];
+      const computedValue = isFunction(computedProvider)
+        ? computedProvider(component)
+        : computedProvider;
 
       localScope.watch(computedValue, (value) => 
       {
