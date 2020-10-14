@@ -159,7 +159,7 @@ export class Scope<A extends LiveContext = any>
       {
         for (const arg of extraArgs)
         {
-          extraConsts[arg].value = extra[arg];
+          extraConsts[arg].value = extra?.[arg];
         }
 
         return extraCmd(this);
