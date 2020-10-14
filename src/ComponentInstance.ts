@@ -190,14 +190,14 @@ export class ComponentInstance<A, E, S extends string, L, C>
 
   public hasSlot<T, F>(slotName: S | 'default', truthy: T, falsy: F): T | F
   {
-    return slotName in this.slots ? truthy : falsy;
+    return this.slots && slotName in this.slots ? truthy : falsy;
   }
 
   public whenSlot(slotName: S | 'default', getMissing: () => NodeTemplateChild, getChildren: () => NodeTemplateChild): NodeTemplateChild
   public whenSlot(slotName: S | 'default', getMissing: () => NodeTemplateChild[], getChildren: () => NodeTemplateChild[]): NodeTemplateChild[]
   public whenSlot<R = NodeTemplateChild | NodeTemplateChild[]>(slotName: S | 'default', getMissing: () => R, getChildren: () => R): R
   {
-    return slotName in this.slots ? getChildren() : getMissing();
+    return this.slots && slotName in this.slots ? getChildren() : getMissing();
   }
 
 }
