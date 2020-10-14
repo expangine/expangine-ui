@@ -1,4 +1,4 @@
-import { Expression, DataTypes, Exprs } from 'expangine-runtime';
+import { Expression, DataTypes, Exprs, ConstantExpression } from 'expangine-runtime';
 import { LiveContext, LiveRuntime } from 'expangine-runtime-live';
 import { Watcher, Node as LinkedNode, observe, unobserve, watch } from 'scrute';
 import { Off } from './Node';
@@ -143,26 +143,24 @@ export class Scope<A extends LiveContext = any>
     };
   }
 
-  private static extraCount: number = 0;
-
   public eval(expr: any): (() => any)
   public eval<E extends string>(expr: any, extraArgs: E[]): ((extra: Record<E, any>) => any) 
   public eval(expr: any, extraArgs: string[] = []): ((extra?: any) => any) 
   {
     if (extraArgs.length > 0)
     {
-      const extraVar = '$' + ++Scope.extraCount;
-      const extraConst = Exprs.const({});
-      const extraExpr = Exprs.define({
-        [extraVar]: extraConst,
-        ...extraArgs.reduce((out, a) => (out[a] = Exprs.get(extraVar, a), out), {}),
-      }, LiveRuntime.defs.getExpression(expr));
-
+      const extraConsts: Record<string, ConstantExpression> = extraArgs.reduce(
+        (out, a) => (out[a] = Exprs.const(undefined), out), {}
+      );
+      const extraExpr = Exprs.define(extraConsts, LiveRuntime.defs.getExpression(expr));
       const extraCmd = LiveRuntime.eval(extraExpr);
 
       return (extra) =>
       {
-        extraConst.value = extra || {};
+        for (const arg of extraArgs)
+        {
+          extraConsts[arg].value = extra[arg];
+        }
 
         return extraCmd(this);
       };
