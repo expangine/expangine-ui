@@ -125,6 +125,8 @@ export class Scope<A extends LiveContext = any>
       if (!async) {
         handleResult( result );
       }
+
+      return result;
     }, {
       onResult: ({ result }) => {
         if (async) {
