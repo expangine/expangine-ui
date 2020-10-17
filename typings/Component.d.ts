@@ -17,7 +17,7 @@ export interface ComponentValue<A, E, S extends string, L, C, V extends keyof A>
 export interface ComponentSlot<A> {
     scope: TypeProvider<A, ObjectType>;
     required?: boolean;
-    only?: string[];
+    accepts?: string[];
     array?: true;
     arrayLength?: ExpressionValue;
     arrayIndexAlias?: string;
@@ -25,6 +25,7 @@ export interface ComponentSlot<A> {
 export interface ComponentBase<A, E = never, S extends string = never, L = never, C = never> {
     name: string;
     collection: string;
+    targets?: string[];
     render(instance: ComponentInstance<A, E, S, L, C>): NodeTemplate;
     created?(instance: ComponentInstance<A, E, S, L, C>): void;
     updated?(instance: ComponentInstance<A, E, S, L, C>): void;
