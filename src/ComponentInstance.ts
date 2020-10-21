@@ -53,6 +53,19 @@ export class ComponentInstance<A, E, S extends string, L, C>
     return Exprs.noop();
   }
 
+  public hasCallable<K extends keyof A>(attr: K): boolean
+  {
+    const options = this.getAttributeOptions(attr);
+    const expr = this.getAttributeExpression(attr);
+
+    return Boolean(options && options.callable && expr);
+  }
+
+  public hasAttribute<K extends keyof A>(attr: K): boolean
+  {
+    return Boolean(this.attrs[attr]);
+  }
+
   public callable<K extends keyof A>(attr: K): ((args: any) => {})
   {
     const options = this.getAttributeOptions(attr);
