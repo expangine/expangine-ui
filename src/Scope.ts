@@ -238,12 +238,24 @@ export class Scope<A extends LiveContext = any>
   {
     if (!this.registered)
     {
-      const { dataSet, dataGet, dataHas, dataRemove } = LiveRuntime;
+      const { dataSet, dataGet, dataHas, dataRemove, enterScope } = LiveRuntime;
 
       LiveRuntime.dataGet = (obj, prop) => obj instanceof Scope ? obj.get(prop) : dataGet(obj, prop);
       LiveRuntime.dataSet = (obj, prop, value) => obj instanceof Scope ? obj.set(prop, value) : dataSet(obj, prop, value);
       LiveRuntime.dataHas = (obj, prop) => obj instanceof Scope ? obj.has(prop) : dataHas(obj, prop);
       LiveRuntime.dataRemove = (obj, prop) => obj instanceof Scope ? obj.remove(prop) : dataRemove(obj, prop);
+      LiveRuntime.enterScope = (obj, props, run) => {
+        if (obj instanceof Scope) {
+          const childData = props.reduce((o, prop) => (o[prop] = undefined, o), {});
+          const child = new Scope(obj, childData);
+          const result = run(child);
+          child.destroy();
+          
+          return result;
+        } else {
+          return enterScope(obj, props, run);
+        }
+      };
 
       DataTypes.addCopier({
         priority: 12,
