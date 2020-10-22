@@ -27,6 +27,7 @@ export declare class ComponentInstance<A, E, S extends string, L, C> {
     destroy(): void;
     getAttributeOptions<K extends keyof A>(attr: K): ComponentValue<A, E, S, L, C, K> | false;
     getAttributeExpression<K extends keyof A>(attr: K): Expression | false;
+    getAttributeExpression<K extends keyof A, O>(attr: K, otherwise: O): Expression | O;
     getSlotArrayLength(slotName?: S | 'default'): Expression;
     getSlotOptions(slotName?: S | 'default'): ComponentSlot<A> | false;
     getSlotSize(slotName?: S | 'default', slotIndex?: number): number;

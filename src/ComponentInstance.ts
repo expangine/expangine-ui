@@ -137,6 +137,8 @@ export class ComponentInstance<A, E, S extends string, L, C>
   }
 
   public getAttributeExpression<K extends keyof A>(attr: K): Expression | false
+  public getAttributeExpression<K extends keyof A, O>(attr: K, otherwise: O): Expression | O
+  public getAttributeExpression<K extends keyof A, O = boolean>(attr: K, otherwise: O = false as any as O): Expression | O
   {
     const attrOptions = this.getAttributeOptions(attr);
     
@@ -145,7 +147,7 @@ export class ComponentInstance<A, E, S extends string, L, C>
         ? isFunction(attrOptions.default)
           ? attrOptions.default(this)
           : attrOptions.default
-        : false
+        : otherwise
     );
   }
 
